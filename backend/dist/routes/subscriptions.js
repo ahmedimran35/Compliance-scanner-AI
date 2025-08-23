@@ -20,7 +20,6 @@ router.get('/plans', async (req, res) => {
         res.json({ plans });
     }
     catch (error) {
-        console.error('Error fetching plans:', error);
         res.status(500).json({ error: 'Failed to fetch plans' });
     }
 });
@@ -46,7 +45,6 @@ router.post('/create-checkout-session', async (req, res) => {
         res.json({ sessionId: session.id, url: session.url });
     }
     catch (error) {
-        console.error('Error creating checkout session:', error);
         res.status(500).json({ error: 'Failed to create checkout session' });
     }
 });
@@ -71,7 +69,6 @@ router.post('/create-portal-session', async (req, res) => {
         res.json({ url: session.url });
     }
     catch (error) {
-        console.error('Error creating portal session:', error);
         res.status(500).json({ error: 'Failed to create portal session' });
     }
 });
@@ -116,7 +113,6 @@ router.get('/status', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching subscription status:', error);
         res.status(500).json({ error: 'Failed to fetch subscription status' });
     }
 });
@@ -132,7 +128,6 @@ router.post('/webhook', express_1.default.raw({ type: 'application/json' }), asy
         event = require('stripe').webhooks.constructEvent(req.body, sig, endpointSecret || '');
     }
     catch (err) {
-        console.error('Webhook signature verification failed:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
     try {
@@ -140,7 +135,6 @@ router.post('/webhook', express_1.default.raw({ type: 'application/json' }), asy
         res.json({ received: true });
     }
     catch (error) {
-        console.error('Error handling webhook:', error);
         res.status(500).json({ error: 'Webhook handler failed' });
     }
 });

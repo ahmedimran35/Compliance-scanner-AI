@@ -148,7 +148,6 @@ export default function ReportsPage() {
       }
 
     } catch (err) {
-      console.error('Error fetching reports:', err);
       setError('Failed to fetch reports. Please try again.');
     } finally {
       setLoading(false);
@@ -164,7 +163,6 @@ export default function ReportsPage() {
       if (interval) return;
       interval = setInterval(() => {
         if (document.visibilityState === 'visible') {
-          console.log('Polling for reports updates...');
           fetchReports();
         }
       }, 30000);
@@ -706,7 +704,7 @@ export default function ReportsPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              // TODO: Implement download functionality
+              
                               alert('Download functionality coming soon!');
                             }}
                             className="p-2 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"

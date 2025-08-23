@@ -201,7 +201,6 @@ export default function ScanDetailPage() {
       }
 
       const apiUrl = getApiUrl();
-      console.log('Fetching scan details from:', `${apiUrl}/api/scans/${scanId}`);
       
       const response = await fetch(`${apiUrl}/api/scans/${scanId}`, {
         headers: {
@@ -210,12 +209,9 @@ export default function ScanDetailPage() {
         },
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', response.status, errorData);
         
         if (response.status === 404) {
           setError(`Scan with ID "${scanId}" not found. Please check the URL and try again.`);
@@ -232,47 +228,33 @@ export default function ScanDetailPage() {
       }
 
       const data = await response.json();
-      console.log('Scan data received:', data);
-      console.log('Scan ID:', data._id);
-      console.log('Scan status:', data.status);
-      console.log('URL ID type:', typeof data.urlId);
-      console.log('URL ID data:', data.urlId);
-      console.log('Scan results:', data.results);
-      console.log('Technical details:', data.results?.technicalDetails);
       
       // Backend returns scan data directly, not wrapped in 'scan' property
       if (!data._id) {
-        console.error('No scan ID found in response:', data);
         setError('Invalid scan data received from server. No scan ID found.');
         return;
       }
       
       // Check if scan has basic required fields
       if (!data.status) {
-        console.error('Scan missing status field:', data);
         setError('Invalid scan data received from server. Missing status information.');
         return;
       }
       
       // Check if scan is completed but has no results
       if (data.status === 'completed' && !data.results) {
-        console.error('Completed scan missing results:', data);
         setError('Scan completed but no results were found. This might be a data corruption issue.');
         return;
       }
       
-      console.log('Setting scan data:', data);
       setScan(data);
       // urlId is populated from backend, so extract the URL data
       if (data.urlId && typeof data.urlId === 'object') {
-        console.log('Setting URL data:', data.urlId);
         setUrl(data.urlId);
       } else {
-        console.log('No URL data found, setting to null');
         setUrl(null);
       }
     } catch (err) {
-      console.error('Error fetching scan details:', err);
       if (err instanceof TypeError && err.message.includes('fetch')) {
         setError('Network error: Backend server is not available. Please make sure the backend is running on port 3001.');
       } else {
@@ -413,7 +395,7 @@ export default function ScanDetailPage() {
                 <p className="text-red-700 mb-6">{error}</p>
                 
                 <div className="bg-white rounded-xl p-4 mb-6">
-                  <h3 className="font-semibold text-gray-800 mb-2">Debug Information:</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">Technical Information:</h3>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>Scan ID:</strong> {scanId}</p>
                     <p><strong>API URL:</strong> {getApiUrl()}</p>

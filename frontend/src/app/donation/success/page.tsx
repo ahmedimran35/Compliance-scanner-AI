@@ -68,7 +68,6 @@ export default function DonationSuccessPage() {
             errorMessage = supporterResponse.statusText || errorMessage;
             errorDetails = `Status: ${supporterResponse.status}, StatusText: ${supporterResponse.statusText}`;
           }
-          console.error('Donation processing failed:', {
             status: supporterResponse.status,
             statusText: supporterResponse.statusText,
             errorMessage,
@@ -85,7 +84,6 @@ export default function DonationSuccessPage() {
         }
 
       } catch (error) {
-        console.error('Error updating user status:', error);
         
         // Handle specific error cases
         if (error instanceof TypeError && error.message.includes('fetch')) {

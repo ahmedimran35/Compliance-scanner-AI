@@ -98,7 +98,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
       const token = await getToken();
       const baseUrl = getApiUrl();
 
-      console.log('Starting quick scan for URL:', url);
 
       // First, create a temporary project and URL
       const projectResponse = await fetch(`${baseUrl}/api/projects`, {
@@ -119,7 +118,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
 
       if (!projectResponse.ok) {
         const errorText = await projectResponse.text();
-        console.error('Project creation failed:', projectResponse.status, errorText);
         
         // Try to parse error message
         try {
@@ -131,7 +129,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
       }
 
       const projectData = await projectResponse.json();
-      console.log('Project created:', projectData);
       const urlId = projectData.urls[0]._id;
 
       // Start the scan
@@ -155,7 +152,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
 
       if (!scanResponse.ok) {
         const errorText = await scanResponse.text();
-        console.error('Scan start failed:', scanResponse.status, errorText);
         
         // Try to parse error message
         try {
@@ -167,11 +163,9 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
       }
 
       const scanData = await scanResponse.json();
-      console.log('Scan started:', scanData);
       
       // Get the scan ID from the response
       const scanId = scanData.scan._id;
-      console.log('Scan ID for polling:', scanId);
       
       // Validate scan ID exists
       if (!scanId) {
@@ -189,7 +183,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
           return;
         }
 
-        console.log(`Polling scan status (attempt ${attempts + 1}/${maxAttempts})`);
 
         try {
           const statusResponse = await fetch(`${baseUrl}/api/scans/${scanId}`, {
@@ -200,7 +193,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
 
           if (!statusResponse.ok) {
             const errorText = await statusResponse.text();
-            console.error('Scan status check failed:', statusResponse.status, errorText);
             
             // If it's a 404, the scan might not exist yet, continue polling
             if (statusResponse.status === 404) {
@@ -213,7 +205,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
           }
 
           const statusData = await statusResponse.json();
-          console.log('Scan status:', statusData.status, statusData);
           
           if (statusData.status === 'completed') {
             const completed: ScanResult = { status: 'completed', results: statusData.results };
@@ -242,7 +233,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
           attempts++;
           setTimeout(pollScan, 5000); // Poll every 5 seconds
         } catch (error) {
-          console.error('Error polling scan status:', error);
           
           // If we've tried too many times, give up
           if (attempts >= maxAttempts - 1) {
@@ -260,7 +250,6 @@ export default function QuickScanModal({ onClose, onComplete }: QuickScanModalPr
       pollScan();
 
     } catch (err) {
-      console.error('Scan error:', err);
       setScanResult({ status: 'failed', error: err instanceof Error ? err.message : 'Unknown error' });
       setScanning(false);
     }

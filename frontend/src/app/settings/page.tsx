@@ -119,7 +119,7 @@ export default function SettingsPage() {
         return;
       }
 
-      console.log('Fetching user profile...');
+
       const response = await fetch(`${getApiUrl()}/api/user/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -127,11 +127,10 @@ export default function SettingsPage() {
         },
       });
 
-      console.log('Response status:', response.status);
+      
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', response.status, errorData);
         
         if (response.status === 401) {
           setError('Authentication failed. Please sign in again.');
@@ -142,21 +141,17 @@ export default function SettingsPage() {
       }
 
       const data = await response.json();
-      console.log('Settings page - Full API response:', data);
       
       if (data.user) {
-        console.log('User data received:', data.user);
         setProfile(data.user);
         // setEditForm({ // This line is now handled by the useEffect hook
         //   firstName: data.user.firstName || '',
         //   lastName: data.user.lastName || ''
         // });
       } else {
-        console.error('No user data in response:', data);
         setError('Invalid response format from server');
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
       setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -186,7 +181,6 @@ export default function SettingsPage() {
         throw new Error('Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
       alert('Failed to update profile. Please try again.');
     }
   };
@@ -213,7 +207,6 @@ export default function SettingsPage() {
         throw new Error(errorData.error || 'Failed to fix statistics');
       }
     } catch (error) {
-      console.error('Error fixing statistics:', error);
       alert(`Failed to fix statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);

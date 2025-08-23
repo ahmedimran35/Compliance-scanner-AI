@@ -121,7 +121,6 @@ const Hero = () => {
           >
             <Button 
               size="lg" 
-              onClick={() => console.log('Get Started clicked')}
               className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-2xl shadow-blue-500/25"
             >
               <Zap className="w-5 h-5 mr-2" />
@@ -132,7 +131,6 @@ const Hero = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              onClick={() => console.log('Support Us clicked')}
               className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
             >
               <Heart className="w-4 h-4 mr-2" />

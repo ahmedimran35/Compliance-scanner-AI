@@ -31,7 +31,6 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
 
     res.json(projectsWithUrlCounts);
   } catch (error) {
-    console.error('Error fetching projects:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -62,7 +61,6 @@ router.get('/:projectId', authenticateToken, async (req: AuthenticatedRequest, r
       updatedAt: project.updatedAt,
     });
   } catch (error) {
-    console.error('Error fetching project:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -143,7 +141,6 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       urls: createdUrls
     });
   } catch (error: any) {
-    console.error('Error creating project:', error);
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: 'Invalid project data' });
     }
@@ -179,7 +176,6 @@ router.put('/:projectId', authenticateToken, async (req: AuthenticatedRequest, r
       project
     });
   } catch (error) {
-    console.error('Error updating project:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -212,7 +208,6 @@ router.delete('/:projectId', authenticateToken, async (req: AuthenticatedRequest
 
     res.json({ message: 'Project and all associated URLs deleted successfully' });
   } catch (error) {
-    console.error('Error deleting project:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -239,7 +234,6 @@ router.get('/:projectId/urls', authenticateToken, async (req: AuthenticatedReque
 
     res.json(urls);
   } catch (error) {
-    console.error('Error fetching URLs:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -298,7 +292,6 @@ router.post('/:projectId/urls', authenticateToken, async (req: AuthenticatedRequ
       url: newUrl
     });
   } catch (error: any) {
-    console.error('Error adding URL:', error);
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: 'Invalid URL format' });
     }
@@ -344,7 +337,6 @@ router.put('/:projectId/urls/:urlId', authenticateToken, async (req: Authenticat
       url: urlDoc
     });
   } catch (error: any) {
-    console.error('Error updating URL:', error);
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: 'Invalid URL format' });
     }
@@ -378,7 +370,6 @@ router.delete('/:projectId/urls/:urlId', authenticateToken, async (req: Authenti
 
     res.json({ message: 'URL deleted successfully' });
   } catch (error) {
-    console.error('Error deleting URL:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

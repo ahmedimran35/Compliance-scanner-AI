@@ -82,7 +82,6 @@ export default function CreateProjectModal({ onClose, onProjectCreated }: Create
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Create Project Error:', response.status, data);
 
         if (response.status === 401) {
           throw new Error('Authentication failed. Please sign in again.');
@@ -97,7 +96,6 @@ export default function CreateProjectModal({ onClose, onProjectCreated }: Create
 
       onProjectCreated(data.project);
     } catch (err: any) {
-      console.error('Create project error:', err);
       setError(err.message || 'Failed to create project');
     } finally {
       setLoading(false);

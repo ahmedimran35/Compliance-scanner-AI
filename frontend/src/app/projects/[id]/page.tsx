@@ -156,7 +156,6 @@ export default function ProjectDetailPage() {
         setIsSupporter(data.user?.isSupporter || false);
       }
     } catch (err) {
-      console.error('Error fetching user status:', err);
     }
   };
 
@@ -180,7 +179,6 @@ export default function ProjectDetailPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', response.status, errorData);
         
         if (response.status === 404) {
           setError('Project not found');
@@ -195,7 +193,6 @@ export default function ProjectDetailPage() {
       const data = await response.json();
       setProject(data);
     } catch (err) {
-      console.error('Error fetching project:', err);
       setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -222,7 +219,6 @@ export default function ProjectDetailPage() {
         setUrls(data);
       }
     } catch (err) {
-      console.error('Error fetching URLs:', err);
     }
   };
 
@@ -243,11 +239,9 @@ export default function ProjectDetailPage() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched scans data:', data);
         setScans(data);
       }
     } catch (err) {
-      console.error('Error fetching scans:', err);
     }
   };
 
@@ -290,7 +284,6 @@ export default function ProjectDetailPage() {
         throw new Error(data.error || 'Failed to add URL');
       }
 
-      console.log('New URL data from backend:', data.url);
       
       // Ensure the new URL has the correct status for immediate scanning
       const newUrlWithStatus = {
@@ -298,7 +291,6 @@ export default function ProjectDetailPage() {
         status: 'completed' // Set to completed so it's ready for new scans
       };
 
-      console.log('New URL with updated status:', newUrlWithStatus);
       setUrls([...urls, newUrlWithStatus]);
       setNewUrl('');
       setNewUrlName('');
@@ -445,7 +437,6 @@ export default function ProjectDetailPage() {
       }
 
       // Add the new scan to the list
-      console.log('New scan data:', data.scan);
       
       // Ensure the scan has the correct structure
       const newScan = {
@@ -485,7 +476,6 @@ export default function ProjectDetailPage() {
 
         if (response.ok) {
           const scanData = await response.json();
-          console.log('Polled scan data:', scanData);
           
           // Handle both possible response formats
           const scan = scanData.scan || scanData;
@@ -508,10 +498,8 @@ export default function ProjectDetailPage() {
             setTimeout(poll, 2000); // Poll every 2 seconds
           }
         } else {
-          console.error('Failed to poll scan status:', response.status, response.statusText);
         }
       } catch (err) {
-        console.error('Error polling scan status:', err);
       }
     };
 
@@ -794,13 +782,8 @@ export default function ProjectDetailPage() {
                             url = urls.find(u => String(u._id) === urlId);
                           }
                           
-                          // Add debugging for scan structure
+                  
                           if (index === 0) {
-                            console.log('First scan structure:', scan);
-                            console.log('Scan URL ID:', urlId);
-                            console.log('Found URL:', url);
-                            console.log('URL ID type:', typeof scan.urlId);
-                            console.log('Available URLs:', urls.map(u => ({ id: String(u._id), name: u.name, url: u.url })));
                           }
                           
                           return (

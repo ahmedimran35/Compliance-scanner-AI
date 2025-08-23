@@ -153,7 +153,7 @@ export class WebsiteScanner {
     try {
       const startTime = Date.now();
       
-      console.log(`Starting scan for ${this.url} with options:`, options);
+  
       
       await this.fetchContent();
       this.parseHTML();
@@ -161,34 +161,32 @@ export class WebsiteScanner {
 
       const results: any = {};
 
-      // Debug: Log what we're about to scan
-      console.log('Starting scan with options:', options);
-      console.log('HTML content length:', this.html.length);
-      console.log('DOM parsed successfully:', !!this.dom);
+      
+
 
       // Perform scans based on options
       if (options.gdpr) {
-        console.log('Performing GDPR scan...');
+  
         results.gdpr = this.checkGDPR();
       }
 
       if (options.accessibility) {
-        console.log('Performing accessibility checks...');
+  
         results.accessibility = this.checkAccessibility();
       }
 
       if (options.security) {
-        console.log('Performing security checks...');
+  
         results.security = this.checkSecurity();
       }
 
       if (options.performance) {
-        console.log('Performing performance checks...');
+  
         results.performance = this.checkPerformance();
       }
 
       if (options.seo) {
-        console.log('Performing SEO checks...');
+  
         results.seo = this.checkSEO();
       }
 
@@ -197,14 +195,8 @@ export class WebsiteScanner {
       // Calculate overall score
       const overall = this.calculateOverall(results, options);
       
-      // Debug: Log final technical details
-      console.log('Final technical details being returned:');
-      console.log('- Server Info:', this.serverInfo);
-      console.log('- Technologies:', this.technologies);
-      console.log('- Frameworks:', this.frameworks);
-      console.log('- CMS:', this.cms);
-      console.log('- Hosting:', this.hosting);
-      console.log('- Total scan duration:', totalScanDuration, 'ms');
+      
+
 
       return {
         gdpr: results.gdpr || this.getDefaultGDPR(),
@@ -223,7 +215,7 @@ export class WebsiteScanner {
         }
       };
     } catch (error) {
-      console.error('Scan error:', error);
+  
       throw new Error(`Failed to scan website: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -261,9 +253,9 @@ export class WebsiteScanner {
       // Detect technologies and frameworks
       this.detectTechnologies();
       
-      console.log(`Fetched ${this.url}: ${this.loadTime}ms, ${this.pageSize} bytes, Server: ${this.serverInfo}`);
+      
     } catch (error) {
-      console.error(`Failed to fetch ${this.url}:`, error);
+
       throw new Error(`Failed to fetch website content: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -272,8 +264,7 @@ export class WebsiteScanner {
     const html = this.html.toLowerCase();
     const headers = this.responseHeaders;
     
-    console.log('Detecting technologies for:', this.url);
-    console.log('Server info:', this.serverInfo);
+    
     
     // Clear previous detections
     this.technologies = [];
@@ -300,10 +291,7 @@ export class WebsiteScanner {
     this.technologies = this.removeDuplicates(this.technologies);
     this.frameworks = this.removeDuplicates(this.frameworks);
     
-    console.log('Detected frameworks:', this.frameworks);
-    console.log('Detected CMS:', this.cms);
-    console.log('Detected hosting:', this.hosting);
-    console.log('Detected technologies:', this.technologies);
+    
   }
 
   private removeDuplicates(array: string[]): string[] {
@@ -330,7 +318,6 @@ export class WebsiteScanner {
     const cfRay = headers['cf-ray'] || headers['CF-Ray'] || '';
     const xPoweredBy = headers['x-powered-by'] || headers['X-Powered-By'] || '';
     
-    console.log('Raw headers for server detection:', {
       server,
       poweredBy,
       via,
@@ -1587,7 +1574,7 @@ export class WebsiteScanner {
       });
       
     } catch (error) {
-      console.error('Error detecting technologies from scripts:', error);
+
     }
   }
 
@@ -1600,7 +1587,7 @@ export class WebsiteScanner {
     const recommendations: string[] = [];
     let score = 100;
 
-    console.log('Starting comprehensive GDPR compliance analysis for:', this.url);
+
 
     // 1. Cookie Banner Analysis (Real Detection)
     const cookieBannerAnalysis = { enabled: false, found: false, hasAcceptButton: false, hasRejectButton: false, issues: [], details: { hasBanner: false } };
@@ -1610,7 +1597,6 @@ export class WebsiteScanner {
       recommendations.push('Implement a cookie consent banner that clearly explains data collection and provides accept/reject options');
       score -= 15;
     } else {
-      console.log('Cookie banner found:', cookieBannerAnalysis.details);
       if (!cookieBannerAnalysis.hasAcceptButton) {
         issues.push('Cookie banner found but missing accept button');
         recommendations.push('Add clear accept/reject buttons to cookie banner');
@@ -1631,7 +1617,6 @@ export class WebsiteScanner {
       recommendations.push('Create and prominently link to a comprehensive privacy policy');
       score -= 15;
     } else {
-      console.log('Privacy policy found:', privacyPolicyAnalysis.details);
       if (!privacyPolicyAnalysis.hasDataCollection) {
         issues.push('Privacy policy found but missing data collection information');
         recommendations.push('Add detailed data collection practices to privacy policy');
@@ -1651,8 +1636,6 @@ export class WebsiteScanner {
       issues.push('No terms of service found');
       recommendations.push('Create and link to terms of service');
       score -= 10;
-    } else {
-      console.log('Terms of service found:', termsAnalysis.details);
     }
 
     // 4. Data Processing Notice Analysis (Real Detection)
@@ -1662,8 +1645,6 @@ export class WebsiteScanner {
       issues.push('No data processing notice found');
       recommendations.push('Add clear data processing notices explaining how personal data is handled');
       score -= 10;
-    } else {
-      console.log('Data processing notice found:', dataProcessingAnalysis.details);
     }
 
     // 5. Cookie Policy Analysis (Real Detection)
@@ -1673,8 +1654,6 @@ export class WebsiteScanner {
       issues.push('No cookie policy found');
       recommendations.push('Create a detailed cookie policy explaining all cookie types and purposes');
       score -= 10;
-    } else {
-      console.log('Cookie policy found:', cookiePolicyAnalysis.details);
     }
 
     // 6. Data Retention Policy Analysis (Real Detection)
@@ -1684,8 +1663,6 @@ export class WebsiteScanner {
       issues.push('No data retention policy found');
       recommendations.push('Define and publish data retention policies with specific timeframes');
       score -= 10;
-    } else {
-      console.log('Data retention policy found:', retentionAnalysis.details);
     }
 
     // 7. User Consent Mechanism Analysis (Real Detection)
@@ -1695,8 +1672,6 @@ export class WebsiteScanner {
       issues.push('No user consent mechanism found');
       recommendations.push('Implement granular consent mechanisms for different data processing activities');
       score -= 10;
-    } else {
-      console.log('User consent mechanism found:', consentAnalysis.details);
     }
 
     // 8. Data Portability Analysis (Real Detection)
@@ -1706,8 +1681,6 @@ export class WebsiteScanner {
       issues.push('No data portability option found');
       recommendations.push('Provide data export functionality for users to download their personal data');
       score -= 10;
-    } else {
-      console.log('Data portability option found:', portabilityAnalysis.details);
     }
 
     // 9. Right to Erasure Analysis (Real Detection)
@@ -1717,8 +1690,6 @@ export class WebsiteScanner {
       issues.push('No right to erasure mechanism found');
       recommendations.push('Implement data deletion functionality for users to request data removal');
       score -= 10;
-    } else {
-      console.log('Right to erasure mechanism found:', erasureAnalysis.details);
     }
 
     // 10. Data Minimization Analysis (Real Detection)
@@ -1728,8 +1699,6 @@ export class WebsiteScanner {
       issues.push('Data minimization not properly implemented');
       recommendations.push('Ensure data collection is minimized and only necessary for specific purposes');
       score -= 10;
-    } else {
-      console.log('Data minimization analysis:', minimizationAnalysis.details);
     }
 
     // 11. Purpose Limitation Analysis (Real Detection)
@@ -1739,8 +1708,6 @@ export class WebsiteScanner {
       issues.push('Purpose limitation not properly implemented');
       recommendations.push('Clearly state the purpose of data collection and ensure it is lawful');
       score -= 10;
-    } else {
-      console.log('Purpose limitation analysis:', purposeAnalysis.details);
     }
 
     // 12. Lawful Basis Analysis (Real Detection)
@@ -1750,8 +1717,6 @@ export class WebsiteScanner {
       issues.push('No lawful basis for data processing found');
       recommendations.push('Ensure data processing is based on a valid legal basis (consent, contract, legitimate interest, etc.)');
       score -= 10;
-    } else {
-      console.log('Lawful basis analysis:', lawfulBasisAnalysis.details);
     }
 
     // 13. Third-party Tracking Analysis (Real Detection)
@@ -1760,8 +1725,6 @@ export class WebsiteScanner {
       issues.push('Third-party tracking detected without proper consent mechanism');
       recommendations.push('Implement consent mechanism for third-party tracking and analytics');
       score -= 15;
-    } else if (trackingAnalysis.hasTracking) {
-      console.log('Third-party tracking analysis:', trackingAnalysis.details);
     }
 
     // 14. Data Transfer Analysis (Real Detection)
@@ -1770,8 +1733,6 @@ export class WebsiteScanner {
       issues.push('International data transfer detected without proper safeguards');
       recommendations.push('Implement appropriate safeguards for international data transfers');
       score -= 10;
-    } else if (transferAnalysis.hasInternationalTransfer) {
-      console.log('Data transfer analysis:', transferAnalysis.details);
     }
 
     // 15. Data Protection Officer Analysis (Real Detection)
@@ -1781,8 +1742,6 @@ export class WebsiteScanner {
       issues.push('No Data Protection Officer contact information found');
       recommendations.push('Appoint and publish contact information for Data Protection Officer if required');
       score -= 5;
-    } else {
-      console.log('Data Protection Officer found:', dpoAnalysis.details);
     }
 
     // 16. Data Breach Notification Analysis (Real Detection)
@@ -1792,8 +1751,6 @@ export class WebsiteScanner {
       issues.push('No data breach notification procedure found');
       recommendations.push('Implement and publish data breach notification procedures');
       score -= 5;
-    } else {
-      console.log('Data breach notification found:', breachAnalysis.details);
     }
 
     // 17. Children's Data Protection Analysis (Real Detection)
@@ -1802,8 +1759,6 @@ export class WebsiteScanner {
       issues.push('Children\'s data processing detected without proper protection measures');
       recommendations.push('Implement enhanced protection measures for children\'s data processing');
       score -= 10;
-    } else if (childrenAnalysis.hasChildrenData) {
-      console.log('Children\'s data protection analysis:', childrenAnalysis.details);
     }
 
     // 18. Automated Decision Making Analysis (Real Detection)
@@ -1812,8 +1767,6 @@ export class WebsiteScanner {
       issues.push('Automated decision making detected without proper safeguards');
       recommendations.push('Implement safeguards for automated decision making including human review rights');
       score -= 10;
-    } else if (automatedAnalysis.hasAutomatedDecisions) {
-      console.log('Automated decision making analysis:', automatedAnalysis.details);
     }
 
     // 19. Data Subject Rights Analysis (Real Detection)
@@ -1823,8 +1776,6 @@ export class WebsiteScanner {
       issues.push('Data subject rights not clearly communicated');
       recommendations.push('Clearly communicate all data subject rights including access, rectification, erasure, and objection');
       score -= 10;
-    } else {
-      console.log('Data subject rights found:', rightsAnalysis.details);
     }
 
     // 20. Privacy by Design Analysis (Real Detection)
@@ -1834,11 +1785,9 @@ export class WebsiteScanner {
       issues.push('Privacy by design principles not implemented');
       recommendations.push('Implement privacy by design principles in all data processing activities');
       score -= 5;
-    } else {
-      console.log('Privacy by design analysis:', privacyByDesignAnalysis.details);
     }
 
-    console.log('GDPR compliance analysis completed. Score:', score, 'Issues:', issues.length);
+
 
     return {
       hasCookieBanner,
@@ -2015,17 +1964,14 @@ export class WebsiteScanner {
     const recommendations: string[] = [];
     let score = 0; // Start from 0 and add points for good practices
 
-    console.log('Starting comprehensive security analysis for:', this.url);
 
     // 1. Real HTTPS Analysis (Actual Detection) - CRITICAL: 25 points
     const httpsAnalysis = this.analyzeHTTPS();
     if (httpsAnalysis.enabled) {
       score += 25;
-      console.log('✅ HTTPS enabled: +25 points');
     } else {
       issues.push('Website not using HTTPS');
       recommendations.push('Implement SSL/TLS encryption for secure data transmission');
-      console.log('❌ HTTPS not enabled: 0 points');
     }
 
     // 2. Real Security Headers Analysis (Actual Detection) - IMPORTANT: Up to 20 points
@@ -2037,105 +1983,86 @@ export class WebsiteScanner {
       issues.push('Missing important security headers');
       recommendations.push('Implement security headers: X-Frame-Options, X-Content-Type-Options, etc.');
     }
-    console.log(`🔒 Security headers: +${headerScore} points (${securityHeadersAnalysis.details.totalHeaders}/5 headers)`);
 
     // 3. Real Content Security Policy Analysis (Actual Detection) - IMPORTANT: 15 points
     const cspAnalysis = this.analyzeContentSecurityPolicy();
     if (cspAnalysis.enabled) {
       score += 15;
-      console.log('✅ CSP enabled: +15 points');
     } else {
       issues.push('No Content Security Policy found');
       recommendations.push('Implement Content Security Policy to prevent XSS attacks');
-      console.log('❌ CSP not enabled: 0 points');
     }
 
     // 4. Real HSTS Analysis (Actual Detection) - IMPORTANT: 10 points
     const hstsAnalysis = this.analyzeHSTS();
     if (hstsAnalysis.enabled) {
       score += 10;
-      console.log('✅ HSTS enabled: +10 points');
     } else {
       issues.push('No HTTP Strict Transport Security');
       recommendations.push('Enable HSTS header to enforce HTTPS connections');
-      console.log('❌ HSTS not enabled: 0 points');
     }
 
     // 5. Real XSS Protection Analysis (Actual Detection) - IMPORTANT: 10 points
     const xssAnalysis = this.analyzeXSSProtection();
     if (xssAnalysis.enabled) {
       score += 10;
-      console.log('✅ XSS protection: +10 points');
     } else {
       issues.push('No XSS protection detected');
       recommendations.push('Implement XSS protection mechanisms');
-      console.log('❌ XSS protection: 0 points');
     }
 
     // 6. Real CSRF Protection Analysis (Actual Detection) - MODERATE: 8 points
     const csrfAnalysis = this.analyzeCSRFProtection();
     if (csrfAnalysis.enabled) {
       score += 8;
-      console.log('✅ CSRF protection: +8 points');
     } else {
       issues.push('No CSRF protection detected');
       recommendations.push('Implement CSRF tokens or other CSRF protection mechanisms');
-      console.log('❌ CSRF protection: 0 points');
     }
 
     // 7. Real Input Validation Analysis (Actual Detection) - MODERATE: 6 points
     const inputValidationAnalysis = this.analyzeInputValidation();
     if (inputValidationAnalysis.enabled) {
       score += 6;
-      console.log('✅ Input validation: +6 points');
     } else {
       issues.push('No input validation detected');
       recommendations.push('Implement proper input validation for all user inputs');
-      console.log('❌ Input validation: 0 points');
     }
 
     // 8. Real Output Encoding Analysis (Actual Detection) - MODERATE: 6 points
     const outputEncodingAnalysis = this.analyzeOutputEncoding();
     if (outputEncodingAnalysis.enabled) {
       score += 6;
-      console.log('✅ Output encoding: +6 points');
     } else {
       issues.push('No output encoding detected');
       recommendations.push('Ensure all output is properly encoded to prevent XSS');
-      console.log('❌ Output encoding: 0 points');
     }
 
     // 9. Real Session Management Analysis (Actual Detection) - MODERATE: 6 points
     const sessionAnalysis = this.analyzeSessionManagement();
     if (sessionAnalysis.enabled) {
       score += 6;
-      console.log('✅ Session management: +6 points');
     } else {
       issues.push('No secure session management detected');
       recommendations.push('Implement secure session management and secure cookie handling');
-      console.log('❌ Session management: 0 points');
     }
 
     // 10. Real Cookie Security Analysis (Actual Detection) - MODERATE: 6 points
     const cookieAnalysis = this.analyzeCookieSecurity();
     if (cookieAnalysis.enabled) {
       score += 6;
-      console.log('✅ Cookie security: +6 points');
     } else {
       issues.push('No secure cookies detected');
       recommendations.push('Set Secure and HttpOnly flags for cookies');
-      console.log('❌ Cookie security: 0 points');
     }
 
     // 11. Real Error Handling Analysis (Actual Detection) - MODERATE: 4 points
     const errorHandlingAnalysis = this.analyzeErrorHandling();
     if (errorHandlingAnalysis.enabled) {
       score += 4;
-      console.log('✅ Error handling: +4 points');
     } else {
       issues.push('No error handling detected');
       recommendations.push('Ensure proper error handling and logging to prevent sensitive information exposure');
-      console.log('❌ Error handling: 0 points');
     }
 
     // 12. Real Sensitive Information Exposure Analysis (Actual Detection) - CRITICAL: -10 points if exposed
@@ -2144,9 +2071,7 @@ export class WebsiteScanner {
       issues.push('Sensitive information may be exposed');
       recommendations.push('Remove or properly secure sensitive information from HTML source');
       score -= 10;
-      console.log('⚠️ Sensitive info exposed: -10 points');
     } else {
-      console.log('✅ No sensitive info exposed: 0 points');
     }
 
     // 13. Real Open Redirect Analysis (Actual Detection) - CRITICAL: -10 points if vulnerable
@@ -2155,9 +2080,7 @@ export class WebsiteScanner {
       issues.push('Open redirects may be present');
       recommendations.push('Validate and sanitize all redirect URLs');
       score -= 10;
-      console.log('⚠️ Open redirects: -10 points');
     } else {
-      console.log('✅ No open redirects: 0 points');
     }
 
     // 14. Real SQL Injection Analysis (Actual Detection) - CRITICAL: -10 points if vulnerable
@@ -2166,9 +2089,7 @@ export class WebsiteScanner {
       issues.push('SQL injection vulnerabilities may be present');
       recommendations.push('Implement proper SQL injection protection');
       score -= 10;
-      console.log('⚠️ SQL injection: -10 points');
     } else {
-      console.log('✅ No SQL injection: 0 points');
     }
 
     // 15. Real Clickjacking Analysis (Actual Detection) - MODERATE: -5 points if vulnerable
@@ -2177,9 +2098,7 @@ export class WebsiteScanner {
       issues.push('Clickjacking protection not detected');
       recommendations.push('Implement clickjacking protection');
       score -= 5;
-      console.log('⚠️ Clickjacking: -5 points');
     } else {
-      console.log('✅ No clickjacking: 0 points');
     }
 
     // 16. Real Information Disclosure Analysis (Actual Detection) - MODERATE: -5 points if disclosed
@@ -2188,97 +2107,79 @@ export class WebsiteScanner {
       issues.push('Information disclosure detected');
       recommendations.push('Remove sensitive information from responses');
       score -= 5;
-      console.log('⚠️ Info disclosure: -5 points');
     } else {
-      console.log('✅ No info disclosure: 0 points');
     }
 
     // 17. Real Authentication Analysis (Actual Detection) - MODERATE: 4 points
     const authAnalysis = this.analyzeAuthentication();
     if (authAnalysis.enabled) {
       score += 4;
-      console.log('✅ Authentication: +4 points');
     } else {
       issues.push('No authentication mechanism detected');
       recommendations.push('Implement secure authentication mechanisms');
-      console.log('❌ Authentication: 0 points');
     }
 
     // 18. Real Authorization Analysis (Actual Detection) - MODERATE: 4 points
     const authorizationAnalysis = this.analyzeAuthorization();
     if (authorizationAnalysis.enabled) {
       score += 4;
-      console.log('✅ Authorization: +4 points');
     } else {
       issues.push('No authorization mechanism detected');
       recommendations.push('Implement proper authorization controls');
-      console.log('❌ Authorization: 0 points');
     }
 
     // 19. Real Data Encryption Analysis (Actual Detection) - MODERATE: 4 points
     const encryptionAnalysis = this.analyzeDataEncryption();
     if (encryptionAnalysis.enabled) {
       score += 4;
-      console.log('✅ Data encryption: +4 points');
     } else {
       issues.push('No data encryption detected');
       recommendations.push('Implement data encryption for sensitive information');
-      console.log('❌ Data encryption: 0 points');
     }
 
     // 20. Real Third-Party Security Analysis (Actual Detection) - MODERATE: 3 points
     const thirdPartySecurityAnalysis = this.analyzeThirdPartySecurity();
     if (thirdPartySecurityAnalysis.enabled) {
       score += 3;
-      console.log('✅ Third-party security: +3 points');
     } else {
       issues.push('No third-party security measures detected');
       recommendations.push('Review and secure third-party integrations');
-      console.log('❌ Third-party security: 0 points');
     }
 
     // 21. Real API Security Analysis (Actual Detection) - MODERATE: 3 points
     const apiSecurityAnalysis = this.analyzeAPISecurity();
     if (apiSecurityAnalysis.enabled) {
       score += 3;
-      console.log('✅ API security: +3 points');
     } else {
       issues.push('No API security measures detected');
       recommendations.push('Implement API security best practices');
-      console.log('❌ API security: 0 points');
     }
 
     // 22. Real File Upload Security Analysis (Actual Detection) - MODERATE: 3 points
     const fileUploadAnalysis = this.analyzeFileUploadSecurity();
     if (fileUploadAnalysis.enabled) {
       score += 3;
-      console.log('✅ File upload security: +3 points');
     } else {
       issues.push('No file upload security measures detected');
       recommendations.push('Implement secure file upload mechanisms');
-      console.log('❌ File upload security: 0 points');
     }
 
     // 23. Real Business Logic Analysis (Actual Detection) - MODERATE: 3 points
     const businessLogicAnalysis = this.analyzeBusinessLogic();
     if (businessLogicAnalysis.enabled) {
       score += 3;
-      console.log('✅ Business logic: +3 points');
     } else {
       issues.push('No business logic detected');
       recommendations.push('Review and secure business logic');
-      console.log('❌ Business logic: 0 points');
     }
 
     // 24. Real Security Misconfiguration Analysis (Actual Detection) - MODERATE: 3 points
     const misconfigAnalysis = this.analyzeSecurityMisconfiguration();
     if (misconfigAnalysis.enabled) {
       score += 3;
-      console.log('✅ Security config: +3 points');
     } else {
       issues.push('Security misconfigurations detected');
       recommendations.push('Fix security misconfigurations');
-      console.log('❌ Security config: 0 points');
     }
 
     // 25. Real Vulnerable Components Analysis (Actual Detection) - CRITICAL: -10 points if vulnerable
@@ -2287,16 +2188,12 @@ export class WebsiteScanner {
       issues.push('Vulnerable components detected');
       recommendations.push('Update vulnerable components and dependencies');
       score -= 10;
-      console.log('⚠️ Vulnerable components: -10 points');
     } else {
-      console.log('✅ No vulnerable components: 0 points');
     }
 
     // Ensure score doesn't go below 0 or above 100
     score = Math.max(0, Math.min(100, score));
     
-    console.log(`🎯 Security analysis completed. Total score: ${score}/100`);
-    console.log(`📊 Issues found: ${issues.length}, Recommendations: ${recommendations.length}`);
 
     return {
       hasHTTPS: httpsAnalysis.enabled,
@@ -2325,28 +2222,21 @@ export class WebsiteScanner {
     const recommendations: string[] = [];
     let score = 0; // Start from 0 and add points for good practices
 
-    console.log('Starting comprehensive performance analysis for:', this.url);
 
     // 1. Real Load Time Analysis (Actual Measurement) - CRITICAL: Up to 25 points
     const loadTimeSeconds = this.loadTime / 1000;
-    console.log('Real load time:', loadTimeSeconds, 'seconds');
     
     if (this.loadTime < 1000) {
       score += 25;
-      console.log('✅ Excellent load time (<1s): +25 points');
     } else if (this.loadTime < 2000) {
       score += 20;
-      console.log('✅ Good load time (<2s): +20 points');
     } else if (this.loadTime < 3000) {
       score += 15;
-      console.log('✅ Acceptable load time (<3s): +15 points');
     } else if (this.loadTime < 5000) {
       score += 10;
-      console.log('⚠️ Slow load time (<5s): +10 points');
       issues.push(`Slow page load time: ${loadTimeSeconds.toFixed(2)}s`);
       recommendations.push('Optimize page load time to under 3 seconds for better user experience');
     } else {
-      console.log('❌ Very slow load time (>5s): 0 points');
       issues.push(`Very slow page load time: ${loadTimeSeconds.toFixed(2)}s`);
       recommendations.push('Urgently optimize page load time for better user experience');
     }
@@ -2354,7 +2244,6 @@ export class WebsiteScanner {
     // 2. Real Page Size Analysis (Actual Measurement)
     const pageSizeKB = Math.round(this.pageSize / 1024);
     const pageSizeMB = (this.pageSize / (1024 * 1024)).toFixed(2);
-    console.log('Real page size:', pageSizeKB, 'KB (', pageSizeMB, 'MB)');
     
     if (this.pageSize > 5000000) { // 5MB
       issues.push(`Large page size: ${pageSizeMB}MB`);
@@ -2375,7 +2264,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize images using modern formats (WebP, AVIF) and proper sizing');
       score -= 15;
     } else {
-      console.log('Image analysis:', imageAnalysis.details);
     }
 
     // 4. Real Resource Analysis (Actual Detection)
@@ -2385,7 +2273,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize resources through minification, compression, and bundling');
       score -= 15;
     } else {
-      console.log('Resource analysis:', resourceAnalysis.details);
     }
 
     // 5. Real Compression Analysis (Actual Detection)
@@ -2395,7 +2282,6 @@ export class WebsiteScanner {
       recommendations.push('Enable GZIP/Brotli compression to reduce file sizes');
       score -= 15;
     } else {
-      console.log('Compression analysis:', compressionAnalysis.details);
     }
 
     // 6. Real Caching Analysis (Actual Detection)
@@ -2405,7 +2291,6 @@ export class WebsiteScanner {
       recommendations.push('Implement proper caching strategies for static resources');
       score -= 10;
     } else {
-      console.log('Caching analysis:', cachingAnalysis.details);
     }
 
     // 7. Real CDN Analysis (Actual Detection)
@@ -2415,7 +2300,6 @@ export class WebsiteScanner {
       recommendations.push('Consider using a CDN for better global performance');
       score -= 10;
     } else {
-      console.log('CDN analysis:', cdnAnalysis.details);
     }
 
     // 8. Real Render-Blocking Analysis (Actual Detection)
@@ -2425,7 +2309,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize critical rendering path by deferring non-critical resources');
       score -= 10;
     } else {
-      console.log('Render-blocking analysis:', renderBlockingAnalysis.details);
     }
 
     // 9. Real JavaScript Analysis (Actual Detection)
@@ -2435,7 +2318,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize JavaScript loading and execution');
       score -= 10;
     } else {
-      console.log('JavaScript analysis:', javascriptAnalysis.details);
     }
 
     // 10. Real CSS Analysis (Actual Detection)
@@ -2445,7 +2327,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize CSS delivery and reduce unused styles');
       score -= 10;
     } else {
-      console.log('CSS analysis:', cssAnalysis.details);
     }
 
     // 11. Real Font Analysis (Actual Detection)
@@ -2455,7 +2336,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize font loading and use font-display: swap');
       score -= 10;
     } else {
-      console.log('Font analysis:', fontAnalysis.details);
     }
 
     // 12. Real Third-Party Analysis (Actual Detection)
@@ -2465,7 +2345,6 @@ export class WebsiteScanner {
       recommendations.push('Reduce third-party resources and load them asynchronously');
       score -= 10;
     } else {
-      console.log('Third-party analysis:', thirdPartyAnalysis.details);
     }
 
     // 13. Real HTTP/2 Analysis (Actual Detection)
@@ -2475,7 +2354,6 @@ export class WebsiteScanner {
       recommendations.push('Upgrade to HTTP/2 for better multiplexing and performance');
       score -= 5;
     } else {
-      console.log('HTTP/2 analysis:', http2Analysis.details);
     }
 
     // 14. Real Security Headers Analysis (Performance Impact)
@@ -2485,7 +2363,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize security headers for better performance');
       score -= 5;
     } else {
-      console.log('Security headers analysis:', securityHeadersAnalysis.details);
     }
 
     // 15. Real Core Web Vitals Calculation (Based on Real Data)
@@ -2534,7 +2411,6 @@ export class WebsiteScanner {
       recommendations.push('Implement performance budgets to maintain fast loading times');
       score -= 10;
     } else {
-      console.log('Performance budget analysis:', performanceBudget.details);
     }
 
     // 17. Real Mobile Performance Analysis
@@ -2544,7 +2420,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize for mobile performance and reduce mobile-specific issues');
       score -= 10;
     } else {
-      console.log('Mobile performance analysis:', mobileAnalysis.details);
     }
 
     // 18. Real Resource Loading Analysis
@@ -2554,7 +2429,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize resource loading order and priorities');
       score -= 10;
     } else {
-      console.log('Resource loading analysis:', resourceLoadingAnalysis.details);
     }
 
     // 19. Real Database Query Analysis (if applicable)
@@ -2564,7 +2438,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize database queries and implement caching');
       score -= 5;
     } else {
-      console.log('Database analysis:', databaseAnalysis.details);
     }
 
     // 20. Real Server Response Analysis
@@ -2574,7 +2447,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize server response times and implement caching');
       score -= 10;
     } else {
-      console.log('Server performance analysis:', serverAnalysis.details);
     }
 
     // 21. NEW: Real Network Analysis (Actual Detection)
@@ -2584,7 +2456,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize network requests and reduce round trips');
       score -= 10;
     } else {
-      console.log('Network analysis:', networkAnalysis.details);
     }
 
     // 22. NEW: Real DOM Analysis (Actual Detection)
@@ -2594,7 +2465,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize DOM structure and reduce complexity');
       score -= 10;
     } else {
-      console.log('DOM analysis:', domAnalysis.details);
     }
 
     // 23. NEW: Real Event Handler Analysis (Actual Detection)
@@ -2604,7 +2474,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize event handlers and reduce event listeners');
       score -= 10;
     } else {
-      console.log('Event handler analysis:', eventHandlerAnalysis.details);
     }
 
     // 24. NEW: Real Animation Analysis (Actual Detection)
@@ -2614,7 +2483,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize animations and use hardware acceleration');
       score -= 10;
     } else {
-      console.log('Animation analysis:', animationAnalysis.details);
     }
 
     // 25. NEW: Real Media Analysis (Actual Detection)
@@ -2624,7 +2492,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize media loading and use appropriate formats');
       score -= 10;
     } else {
-      console.log('Media analysis:', mediaAnalysis.details);
     }
 
     // 26. NEW: Real API Performance Analysis (Actual Detection)
@@ -2634,7 +2501,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize API calls and implement caching');
       score -= 10;
     } else {
-      console.log('API performance analysis:', apiAnalysis.details);
     }
 
     // 27. NEW: Real Memory Usage Analysis (Actual Detection)
@@ -2644,7 +2510,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize memory usage and reduce memory leaks');
       score -= 10;
     } else {
-      console.log('Memory analysis:', memoryAnalysis.details);
     }
 
     // 28. NEW: Real Accessibility Performance Analysis (Actual Detection)
@@ -2654,7 +2519,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize accessibility features for better performance');
       score -= 5;
     } else {
-      console.log('Accessibility performance analysis:', accessibilityPerformanceAnalysis.details);
     }
 
     // 29. NEW: Real SEO Performance Analysis (Actual Detection)
@@ -2664,7 +2528,6 @@ export class WebsiteScanner {
       recommendations.push('Optimize SEO elements for better performance');
       score -= 5;
     } else {
-      console.log('SEO performance analysis:', seoPerformanceAnalysis.details);
     }
 
     // 30. NEW: Real Progressive Web App Analysis (Actual Detection)
@@ -2674,10 +2537,8 @@ export class WebsiteScanner {
       recommendations.push('Implement PWA features for better performance');
       score -= 5;
     } else {
-      console.log('PWA analysis:', pwaAnalysis.details);
     }
 
-    console.log('Performance analysis completed. Score:', score, 'Issues:', issues.length);
 
     return {
       loadTime: this.loadTime,

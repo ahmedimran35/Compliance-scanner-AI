@@ -52,7 +52,6 @@ export default function ProjectCard({ project, onDelete, showActions = true }: P
 
       onDelete(project._id);
     } catch (error) {
-      console.error('Error deleting project:', error);
       alert('Failed to delete project. Please try again.');
     } finally {
       setIsDeleting(false);

@@ -150,7 +150,6 @@ export default function ScanOptionsModal({
       await onStartScan(scanOptions);
       onClose();
     } catch (error) {
-      console.error('Failed to start scan:', error);
     } finally {
       setIsStarting(false);
     }

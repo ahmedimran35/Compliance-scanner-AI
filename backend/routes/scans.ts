@@ -114,7 +114,6 @@ router.post('/:urlId', authenticateToken, async (req: AuthenticatedRequest, res:
 
     // Start the scan asynchronously
     performScan((scan._id as any).toString(), url.url, finalOptions).catch(error => {
-      console.error('Scan failed:', error);
     });
 
     res.status(201).json({
@@ -127,7 +126,6 @@ router.post('/:urlId', authenticateToken, async (req: AuthenticatedRequest, res:
       }
     });
   } catch (error) {
-    console.error('Error starting scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -141,7 +139,6 @@ router.get('/test-auth', authenticateToken, async (req: AuthenticatedRequest, re
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Test auth error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -165,7 +162,6 @@ router.get('/recent', authenticateToken, async (req: AuthenticatedRequest, res: 
 
     res.json(scans);
   } catch (error) {
-    console.error('Error fetching recent scans:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -191,7 +187,6 @@ router.get('/monthly-count', authenticateToken, async (req: AuthenticatedRequest
 
     res.json({ count: monthlyScanCount });
   } catch (error) {
-    console.error('Error fetching monthly scan count:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -226,7 +221,6 @@ router.get('/:scanId', authenticateToken, async (req: AuthenticatedRequest, res:
     // Return scan data directly as expected by frontend
     res.json(scan);
   } catch (error) {
-    console.error('Error fetching scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -254,7 +248,6 @@ router.get('/project/:projectId', authenticateToken, async (req: AuthenticatedRe
 
     res.json(scans);
   } catch (error) {
-    console.error('Error fetching scan history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -281,7 +274,6 @@ router.get('/url/:urlId', authenticateToken, async (req: AuthenticatedRequest, r
 
     res.json(scans);
   } catch (error) {
-    console.error('Error fetching URL scan history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -312,7 +304,6 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
     
     res.json(scans);
   } catch (error) {
-    console.error('Error fetching all scans:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -333,7 +324,6 @@ router.get('/urls', authenticateToken, async (req: AuthenticatedRequest, res: Re
     
     res.json(urls);
   } catch (error) {
-    console.error('Error fetching URLs:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -348,14 +338,7 @@ async function performScan(scanId: string, url: string, options: any) {
     const scanner = new WebsiteScanner(url);
     const results = await scanner.scan(options);
 
-    // Debug: Log technical details
-    console.log('Scan results technical details:', results.technicalDetails);
-    console.log('Full scan results structure:', Object.keys(results));
-    console.log('Server info:', results.technicalDetails?.serverInfo);
-    console.log('Technologies:', results.technicalDetails?.technologies);
-    console.log('Frameworks:', results.technicalDetails?.frameworks);
-    console.log('CMS:', results.technicalDetails?.cms);
-    console.log('Hosting:', results.technicalDetails?.hosting);
+    
 
     // Update scan with results (use scanDuration from scanner results)
     await Scan.findByIdAndUpdate(scanId, {
@@ -366,22 +349,15 @@ async function performScan(scanId: string, url: string, options: any) {
 
     // Verify the scan was saved correctly
     const savedScan = await Scan.findById(scanId).populate('projectId');
-    console.log('Saved scan technical details:', savedScan?.results?.technicalDetails);
 
-    console.log(`Scan completed for ${url} in ${results.scanDuration || 0}ms`);
 
     // Create a notification for successful scan
     if (savedScan && savedScan.projectId) {
       const project = savedScan.projectId as any;
-      console.log('🔔 Creating notification for scan completion...');
-      console.log('Project:', project);
-      console.log('Project ownerId:', project.ownerId);
       
       const user = await User.findOne({ clerkId: project.ownerId });
-      console.log('Found user:', user ? 'Yes' : 'No');
       
       if (user) {
-        console.log('🔔 Creating scan completed notification...');
         try {
           await notificationService.createScanCompletedNotification(
             (user as any)._id.toString(),
@@ -391,12 +367,10 @@ async function performScan(scanId: string, url: string, options: any) {
             results
           );
         } catch (notifyError) {
-          console.error('Error creating notification:', notifyError);
         }
       }
     }
   } catch (error) {
-    console.error('Scan processing error:', error);
     await Scan.findByIdAndUpdate(scanId, { status: 'failed' });
   }
 }

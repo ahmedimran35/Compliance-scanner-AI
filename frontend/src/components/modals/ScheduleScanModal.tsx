@@ -64,7 +64,6 @@ export default function ScheduleScanModal({
       await onSchedule(scheduleData);
       onClose();
     } catch (error) {
-      console.error('Error scheduling scan:', error);
     } finally {
       setIsScheduling(false);
     }

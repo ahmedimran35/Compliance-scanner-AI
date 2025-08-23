@@ -35,7 +35,6 @@ router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res:
       createdAt: user.createdAt,
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -66,7 +65,6 @@ router.get('/usage', authenticateToken, async (req: AuthenticatedRequest, res: R
 
     res.json(usage);
   } catch (error) {
-    console.error('Error fetching user usage:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

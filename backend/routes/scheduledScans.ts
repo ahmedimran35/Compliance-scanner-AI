@@ -59,7 +59,6 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       }
     });
   } catch (error) {
-    console.error('Error creating scheduled scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -80,7 +79,6 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
 
     res.json(scheduledScans);
   } catch (error) {
-    console.error('Error fetching scheduled scans:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -109,7 +107,6 @@ router.get('/project/:projectId', authenticateToken, async (req: AuthenticatedRe
 
     res.json(scheduledScans);
   } catch (error) {
-    console.error('Error fetching project scheduled scans:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -152,7 +149,6 @@ router.put('/:scheduledScanId', authenticateToken, async (req: AuthenticatedRequ
       }
     });
   } catch (error) {
-    console.error('Error updating scheduled scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -177,7 +173,6 @@ router.delete('/:scheduledScanId', authenticateToken, async (req: AuthenticatedR
 
     res.json({ message: 'Scheduled scan deleted successfully' });
   } catch (error) {
-    console.error('Error deleting scheduled scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -206,7 +201,6 @@ router.patch('/:scheduledScanId/toggle', authenticateToken, async (req: Authenti
       isActive: scheduledScan.isActive
     });
   } catch (error) {
-    console.error('Error toggling scheduled scan:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

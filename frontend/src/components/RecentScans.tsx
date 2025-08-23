@@ -76,7 +76,6 @@ const formatDate = (dateString: string) => {
 export default function RecentScans({ scans, loading }: RecentScansProps) {
   const [currentPage, setCurrentPage] = useState(1);
   
-  console.log('RecentScans component - scans:', scans, 'loading:', loading);
   
   // Calculate pagination
   const totalPages = Math.ceil(scans.length / SCANS_PER_PAGE);

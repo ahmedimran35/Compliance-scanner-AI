@@ -77,7 +77,6 @@ export default function ProjectsPage() {
       const data = await response.json();
       setProjects(Array.isArray(data) ? data : (data.projects || []));
     } catch (error) {
-      console.error('Error fetching projects:', error);
       setError('Failed to load projects');
     } finally {
       setLoading(false);

@@ -175,7 +175,6 @@ const Pricing = () => {
                         ? 'bg-slate-800 text-white hover:bg-slate-700 border-0 shadow-lg' 
                         : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg'
                     }`}
-                    onClick={() => console.log(`${tier.name} tier clicked`)}
                   >
                     {tier.buttonText}
                   </Button>

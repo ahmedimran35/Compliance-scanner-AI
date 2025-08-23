@@ -54,7 +54,6 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
 
       onDelete();
     } catch (error) {
-      console.error('Error deleting website:', error);
       alert('Failed to delete website. Please try again.');
     } finally {
       setIsDeleting(false);

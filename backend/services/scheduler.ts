@@ -12,14 +12,12 @@ class SchedulerService {
       await this.checkScheduledScans();
     }, 60000); // 1 minute
 
-    console.log('Scheduler service started');
   }
 
   stop() {
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
-      console.log('Scheduler service stopped');
     }
   }
 
@@ -33,25 +31,19 @@ class SchedulerService {
         nextRun: { $lte: now }
       }).populate('urlId');
 
-      console.log(`Found ${dueScans.length} scheduled scans due for execution`);
 
       for (const scheduledScan of dueScans) {
         try {
           await this.executeScheduledScan(scheduledScan);
         } catch (error) {
-          console.error(`Error executing scheduled scan ${scheduledScan._id}:`, error);
         }
       }
     } catch (error) {
-      console.error('Error checking scheduled scans:', error);
     }
   }
 
   private async executeScheduledScan(scheduledScan: any) {
     try {
-      console.log(`🚀 Executing scheduled scan for URL: ${scheduledScan.urlId.url}`);
-      console.log(`📅 Schedule: ${scheduledScan.frequency} at ${scheduledScan.time}`);
-      console.log(`🔍 Scan Options: ${JSON.stringify(scheduledScan.scanOptions)}`);
 
       // Create a new scan record
       const scan = new Scan({
@@ -62,22 +54,17 @@ class SchedulerService {
       }) as IScan;
 
       await scan.save();
-      console.log(`✅ Created scan record with ID: ${scan._id}`);
 
       // Start the scan asynchronously
       this.performScan((scan._id as mongoose.Types.ObjectId).toString(), scheduledScan.urlId.url, scheduledScan.scanOptions)
         .catch(error => {
-          console.error('❌ Scheduled scan failed:', error);
         });
 
       // Update the scheduled scan's next run time
       (scheduledScan as any).updateNextRun();
       await scheduledScan.save();
 
-      console.log(`✅ Scheduled scan ${scheduledScan._id} executed successfully`);
-      console.log(`⏰ Next run scheduled for: ${scheduledScan.nextRun}`);
     } catch (error) {
-      console.error(`❌ Error executing scheduled scan ${scheduledScan._id}:`, error);
       throw error;
     }
   }
@@ -98,9 +85,7 @@ class SchedulerService {
         scanDuration: results.scanDuration || 0,
       });
 
-      console.log(`Scheduled scan completed for ${url} in ${results.scanDuration || 0}ms`);
     } catch (error) {
-      console.error(`Scheduled scan failed for ${url}:`, error);
       
       // Update scan with error
       await Scan.findByIdAndUpdate(scanId, {

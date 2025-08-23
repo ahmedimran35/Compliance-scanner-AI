@@ -39,7 +39,6 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       hasMore: total > skip + notifications.length
     });
   } catch (error) {
-    console.error('Error fetching notifications:', error);
     res.status(500).json({ error: 'Failed to fetch notifications' });
   }
 });
@@ -58,7 +57,6 @@ router.get('/unread-count', async (req: AuthenticatedRequest, res: Response) => 
     const count = await notificationService.getUnreadCount(userId);
     res.json({ count });
   } catch (error) {
-    console.error('Error fetching unread count:', error);
     res.status(500).json({ error: 'Failed to fetch unread count' });
   }
 });
@@ -129,7 +127,6 @@ router.post('/test', async (req: AuthenticatedRequest, res: Response) => {
       notifications: createdNotifications
     });
   } catch (error) {
-    console.error('Error creating test notifications:', error);
     res.status(500).json({ error: 'Failed to create test notifications' });
   }
 });
@@ -155,7 +152,6 @@ router.patch('/:id/read', async (req: AuthenticatedRequest, res: Response) => {
 
     res.json({ notification });
   } catch (error) {
-    console.error('Error marking notification as read:', error);
     res.status(500).json({ error: 'Failed to mark notification as read' });
   }
 });
@@ -174,7 +170,6 @@ router.patch('/mark-all-read', async (req: AuthenticatedRequest, res: Response) 
     await notificationService.markAllAsRead(userId);
     res.json({ message: 'All notifications marked as read' });
   } catch (error) {
-    console.error('Error marking all notifications as read:', error);
     res.status(500).json({ error: 'Failed to mark all notifications as read' });
   }
 });
@@ -200,7 +195,6 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
 
     res.json({ message: 'Notification deleted successfully' });
   } catch (error) {
-    console.error('Error deleting notification:', error);
     res.status(500).json({ error: 'Failed to delete notification' });
   }
 });
@@ -219,7 +213,6 @@ router.delete('/', async (req: AuthenticatedRequest, res: Response) => {
     await notificationService.deleteAllNotifications(userId);
     res.json({ message: 'All notifications deleted successfully' });
   } catch (error) {
-    console.error('Error deleting all notifications:', error);
     res.status(500).json({ error: 'Failed to delete all notifications' });
   }
 });

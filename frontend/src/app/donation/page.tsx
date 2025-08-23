@@ -92,7 +92,6 @@ export default function DonationPage() {
       window.location.href = data.sessionUrl;
       
     } catch (error) {
-      console.error('Error creating checkout session:', error);
       
       // Handle specific error cases
       if (error instanceof TypeError && error.message.includes('fetch')) {

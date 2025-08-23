@@ -42,21 +42,15 @@ const connectDB = async () => {
     try {
         let mongoURI = process.env.MONGODB_URI;
         if (!mongoURI) {
-            console.log('MONGODB_URI not found, using local MongoDB');
             mongoURI = 'mongodb://localhost:27017/compliance-scanner';
         }
         await mongoose_1.default.connect(mongoURI);
-        console.log('MongoDB connected successfully');
     }
     catch (error) {
-        console.error('MongoDB connection error:', error);
-        console.log('Trying local MongoDB as fallback...');
         try {
             await mongoose_1.default.connect('mongodb://localhost:27017/compliance-scanner');
-            console.log('Local MongoDB connected successfully');
         }
         catch (localError) {
-            console.error('Local MongoDB connection also failed:', localError);
             process.exit(1);
         }
     }
@@ -66,17 +60,12 @@ const startServer = async () => {
     try {
         await connectDB();
         app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-            console.log(`Health check available at http://localhost:${PORT}/health`);
-            console.log(`API available at http://localhost:${PORT}/api`);
-            console.log(`Monitoring API available at http://localhost:${PORT}/api/monitoring`);
             // Start the scheduler service
             scheduler_1.default.start();
             monitoringService_1.default.start();
         });
     }
     catch (error) {
-        console.error('Failed to start server:', error);
         process.exit(1);
     }
 };

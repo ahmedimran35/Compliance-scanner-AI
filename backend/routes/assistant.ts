@@ -93,7 +93,6 @@ router.post('/chat', async (req: Request, res: Response) => {
     return res.json({ message: content });
   } catch (err: any) {
     const detail = err?.response?.data || err?.message || 'Unknown error';
-    console.error('Assistant chat error:', detail);
     return res.status(500).json({ error: 'Failed to get assistant response', detail });
   }
 });

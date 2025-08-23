@@ -41,7 +41,6 @@ router.get('/websites', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching websites:', error);
         res.status(500).json({ error: 'Failed to fetch websites' });
     }
 });
@@ -106,7 +105,6 @@ router.post('/websites', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error creating website:', error);
         res.status(500).json({ error: 'Failed to create website' });
     }
 });
@@ -145,7 +143,6 @@ router.get('/websites/:id', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching website:', error);
         res.status(500).json({ error: 'Failed to fetch website' });
     }
 });
@@ -215,7 +212,6 @@ router.put('/websites/:id', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error updating website:', error);
         res.status(500).json({ error: 'Failed to update website' });
     }
 });
@@ -265,7 +261,6 @@ router.patch('/websites/:id/toggle', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error toggling website status:', error);
         res.status(500).json({ error: 'Failed to toggle website status' });
     }
 });
@@ -291,7 +286,6 @@ router.delete('/websites/:id', async (req, res) => {
         res.json({ message: 'Website deleted successfully' });
     }
     catch (error) {
-        console.error('Error deleting website:', error);
         res.status(500).json({ error: 'Failed to delete website' });
     }
 });
@@ -334,7 +328,6 @@ router.post('/websites/:id/check', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error performing manual check:', error);
         res.status(500).json({ error: 'Failed to perform check' });
     }
 });
@@ -368,15 +361,11 @@ router.get('/stats', async (req, res) => {
         res.json({ stats });
     }
     catch (error) {
-        console.error('Error fetching monitoring stats:', error);
         res.status(500).json({ error: 'Failed to fetch monitoring stats' });
     }
 });
 /**
- * GET /api/monitoring/debug
- * Get detailed monitoring status for debugging
  */
-router.get('/debug', async (req, res) => {
     try {
         const userId = req.user?._id;
         if (!userId) {
@@ -401,8 +390,6 @@ router.get('/debug', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching debug info:', error);
-        res.status(500).json({ error: 'Failed to fetch debug info' });
     }
 });
 exports.default = router;

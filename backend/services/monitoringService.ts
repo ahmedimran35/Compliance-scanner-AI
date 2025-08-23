@@ -60,7 +60,7 @@ class MonitoringService {
    */
   public async performCheck(website: IWebsite): Promise<void> {
     try {
-      console.log(`Checking website: ${website.name} (${website.url}) - Interval: ${website.interval}`);
+
       
       const result = await this.checkWebsite(website.url);
       
@@ -78,7 +78,7 @@ class MonitoringService {
       
       // Log the result
       if (result.isOnline) {
-        console.log(`✅ ${website.name} is ONLINE - Response time: ${result.responseTime}ms`);
+
         
         // Create notification if website came back online
         if (previousStatus === 'offline' || previousStatus === 'warning') {
@@ -93,11 +93,10 @@ class MonitoringService {
               );
             }
           } catch (notificationError) {
-            console.error('Failed to create online notification:', notificationError);
           }
         }
       } else {
-        console.log(`❌ ${website.name} is OFFLINE - Error: ${result.error}`);
+
         
         // Create notification if website went offline
         if (previousStatus === 'online') {
@@ -112,13 +111,11 @@ class MonitoringService {
               );
             }
           } catch (notificationError) {
-            console.error('Failed to create offline notification:', notificationError);
           }
         }
       }
       
     } catch (error) {
-      console.error(`Error checking website ${website.name}:`, error);
       
       // Set warning status if there's an error
       await website.setWarningStatus();
@@ -132,7 +129,7 @@ class MonitoringService {
     const websiteId = website._id.toString();
     
     if (!website.isActive) {
-      console.log(`Monitoring not started for ${website.name} - website is inactive`);
+      
       this.stopMonitoring(websiteId);
       return;
     }
@@ -143,7 +140,7 @@ class MonitoringService {
     // Convert interval to milliseconds
     const intervalMs = this.getIntervalMs(website.interval);
     
-    console.log(`Starting monitoring for ${website.name} with ${website.interval} interval (${intervalMs}ms)`);
+    
     
     // Perform initial check
     this.performCheck(website);
@@ -154,13 +151,13 @@ class MonitoringService {
         // Fetch fresh website data to ensure we have the latest settings
         const freshWebsite = await Website.findById(website._id);
         if (!freshWebsite) {
-          console.log(`Website ${website.name} no longer exists, stopping monitoring`);
+  
           this.stopMonitoring(websiteId);
           return;
         }
 
         if (!freshWebsite.isActive) {
-          console.log(`Website ${website.name} is no longer active, stopping monitoring`);
+  
           this.stopMonitoring(websiteId);
           return;
         }
@@ -168,7 +165,7 @@ class MonitoringService {
         // Check if interval has changed
         const currentData = this.websiteData.get(websiteId);
         if (currentData && currentData.interval !== freshWebsite.interval) {
-          console.log(`Interval changed for ${website.name}: ${currentData.interval} -> ${freshWebsite.interval}`);
+  
           // Restart monitoring with new interval
           this.stopMonitoring(websiteId);
           this.startMonitoring(freshWebsite);
@@ -179,7 +176,6 @@ class MonitoringService {
         await this.performCheck(freshWebsite);
         
       } catch (error) {
-        console.error(`Error in monitoring interval for ${website.name}:`, error);
       }
     }, intervalMs);
 
@@ -189,7 +185,7 @@ class MonitoringService {
       lastCheck: new Date()
     });
     
-    console.log(`✅ Started monitoring ${website.name} with ${website.interval} interval`);
+    
   }
 
   /**
@@ -201,7 +197,7 @@ class MonitoringService {
       clearInterval(intervalId);
       this.intervals.delete(websiteId);
       this.websiteData.delete(websiteId);
-      console.log(`🛑 Stopped monitoring website ${websiteId}`);
+
     }
   }
 
@@ -216,7 +212,6 @@ class MonitoringService {
         this.startMonitoring(website);
       }
     } catch (error) {
-      console.error(`Error restarting monitoring for website ${websiteId}:`, error);
     }
   }
 
@@ -227,15 +222,14 @@ class MonitoringService {
     try {
       const websites = await Website.find({ userId, isActive: true });
       
-      console.log(`Starting monitoring for ${websites.length} websites for user ${userId}`);
+
       
       websites.forEach(website => {
         this.startMonitoring(website);
       });
       
-      console.log(`✅ Started monitoring ${websites.length} websites for user ${userId}`);
+
     } catch (error) {
-      console.error(`Error starting monitoring for user ${userId}:`, error);
     }
   }
 
@@ -250,9 +244,8 @@ class MonitoringService {
         this.stopMonitoring(website._id.toString());
       });
       
-      console.log(`🛑 Stopped monitoring all websites for user ${userId}`);
+
     } catch (error) {
-      console.error(`Error stopping monitoring for user ${userId}:`, error);
     }
   }
 
@@ -268,7 +261,6 @@ class MonitoringService {
       case '30min':
         return 30 * 60 * 1000; // 30 minutes
       default:
-        console.warn(`Unknown interval: ${interval}, defaulting to 5min`);
         return 5 * 60 * 1000; // Default to 5 minutes
     }
   }
@@ -296,19 +288,14 @@ class MonitoringService {
     });
     this.intervals.clear();
     this.websiteData.clear();
-    console.log('🧹 Cleaned up all monitoring intervals');
+
   }
 
   /**
-   * Get detailed monitoring information for debugging
+   * Get detailed monitoring information
    */
   public getDetailedStatus(): void {
-    console.log('📊 Current Monitoring Status:');
-    console.log(`Active intervals: ${this.intervals.size}`);
-    
-    this.websiteData.forEach((data, websiteId) => {
-      console.log(`  - Website ${websiteId}: ${data.interval} interval, last check: ${data.lastCheck.toISOString()}`);
-    });
+    // Production monitoring status
   }
 }
 

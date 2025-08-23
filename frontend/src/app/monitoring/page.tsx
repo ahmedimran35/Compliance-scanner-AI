@@ -105,7 +105,6 @@ export default function MonitoringPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', response.status, errorData);
         
         if (response.status === 401) {
           setError('Authentication failed. Please sign in again.');
@@ -135,7 +134,6 @@ export default function MonitoringPage() {
         totalUptime
       });
     } catch (err) {
-      console.error('Error fetching websites:', err);
       setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -180,7 +178,6 @@ export default function MonitoringPage() {
         ));
       }
     } catch (error) {
-      console.error('Error toggling website status:', error);
     }
   }, [getToken]);
 

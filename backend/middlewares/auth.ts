@@ -19,25 +19,20 @@ export const authenticateToken = async (
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    console.log('Processing token for authentication...');
 
     // For now, let's decode the token without verification to get the user info
     // This is a temporary solution until we get the proper JWT public key
     const decoded = jwt.decode(token) as any;
     
     if (!decoded || !decoded.sub) {
-      console.log('Token decode failed or missing sub:', decoded);
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    console.log('Token decoded successfully, user ID:', decoded.sub);
 
     // Find or create user in database
     let user = await User.findOne({ clerkId: decoded.sub });
     
     if (!user) {
-      console.log('Creating new user for clerkId:', decoded.sub);
-      console.log('Token decoded data:', decoded);
       
       // Extract email from token with better fallback handling
       let email = '';
@@ -61,11 +56,8 @@ export const authenticateToken = async (
       // If still no email, use a better placeholder
       if (!email) {
         email = `user_${decoded.sub}@placeholder.com`;
-        console.log('No email found in token, using placeholder:', email);
       }
       
-      console.log('Extracted email:', email);
-      console.log('Token structure for debugging:', {
         hasEmail: !!decoded.email,
         hasEmailAddresses: !!decoded.email_addresses,
         emailAddressesType: typeof decoded.email_addresses,
@@ -90,9 +82,7 @@ export const authenticateToken = async (
       
       try {
         await user.save();
-        console.log('New user created successfully');
       } catch (saveError: any) {
-        console.error('Failed to save user:', saveError);
         // If email is duplicate, try to find existing user
         if (saveError.code === 11000) {
           user = await User.findOne({ email: email });
@@ -104,11 +94,9 @@ export const authenticateToken = async (
         }
       }
     } else {
-      console.log('Existing user found:', user.email);
       
       // Update existing users to have unlimited access if they don't already
       if (user.maxProjects !== -1 || user.maxScansPerMonth !== -1) {
-        console.log('Updating existing user to unlimited access');
         try {
           const updatedUser = await User.findOneAndUpdate(
             { clerkId: decoded.sub },
@@ -124,10 +112,8 @@ export const authenticateToken = async (
           
           if (updatedUser) {
             user = updatedUser;
-            console.log('User updated to unlimited access successfully');
           }
         } catch (updateError) {
-          console.error('Error updating user to unlimited access:', updateError);
           // Continue with existing user data
         }
       }
@@ -136,7 +122,6 @@ export const authenticateToken = async (
     req.user = user;
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
     return res.status(403).json({ error: 'Invalid token' });
   }
 };

@@ -49,7 +49,7 @@ declare class MonitoringService {
         intervals: Map<string, string>;
     };
     /**
-     * Get detailed monitoring info for debugging
+     * Get detailed monitoring info
      */
     getDetailedStatus(): void;
     /**

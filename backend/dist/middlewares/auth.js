@@ -13,19 +13,15 @@ const authenticateToken = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({ error: 'Access token required' });
         }
-        console.log('Processing token for authentication...');
         // For now, let's decode the token without verification to get the user info
         // This is a temporary solution until we get the proper JWT public key
         const decoded = jsonwebtoken_1.default.decode(token);
         if (!decoded || !decoded.sub) {
-            console.log('Token decode failed or missing sub:', decoded);
             return res.status(401).json({ error: 'Invalid token' });
         }
-        console.log('Token decoded successfully, user ID:', decoded.sub);
         // Find or create user in database
         let user = await User_1.default.findOne({ clerkId: decoded.sub });
         if (!user) {
-            console.log('Creating new user for clerkId:', decoded.sub);
             // Extract email from token or use a fallback
             const email = decoded.email || decoded.email_addresses?.[0]?.email_address || `${decoded.sub}@placeholder.com`;
             // Create new user with free tier
@@ -44,10 +40,8 @@ const authenticateToken = async (req, res, next) => {
             });
             try {
                 await user.save();
-                console.log('New user created successfully');
             }
             catch (saveError) {
-                console.error('Failed to save user:', saveError);
                 // If email is duplicate, try to find existing user
                 if (saveError.code === 11000) {
                     user = await User_1.default.findOne({ email: email });
@@ -61,13 +55,11 @@ const authenticateToken = async (req, res, next) => {
             }
         }
         else {
-            console.log('Existing user found:', user.email);
         }
         req.user = user;
         next();
     }
     catch (error) {
-        console.error('Authentication error:', error);
         return res.status(403).json({ error: 'Invalid token' });
     }
 };

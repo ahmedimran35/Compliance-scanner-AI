@@ -56,12 +56,10 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
       const token = await getToken();
       
       if (!token) {
-        console.log('🔔 No token available for notifications');
         return;
       }
 
       const apiUrl = getApiUrl();
-      console.log('🔔 Fetching notifications from:', `${apiUrl}/api/notifications?limit=20`);
       
       const response = await fetch(`${apiUrl}/api/notifications?limit=20`, {
         headers: {
@@ -70,17 +68,13 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         },
       });
 
-      console.log('🔔 Notification response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('🔔 Notifications received:', data);
         setNotifications(data.notifications || []);
       } else {
-        console.log('🔔 Failed to fetch notifications:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('🔔 Error fetching notifications:', error);
     } finally {
       setLoading(false);
     }
@@ -92,12 +86,10 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
       const token = await getToken();
       
       if (!token) {
-        console.log('🔔 No token available for unread count');
         return;
       }
 
       const apiUrl = getApiUrl();
-      console.log('🔔 Fetching unread count from:', `${apiUrl}/api/notifications/unread-count`);
       
       const response = await fetch(`${apiUrl}/api/notifications/unread-count`, {
         headers: {
@@ -106,17 +98,13 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         },
       });
 
-      console.log('🔔 Unread count response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('🔔 Unread count received:', data);
         setUnreadCount(data.count || 0);
       } else {
-        console.log('🔔 Failed to fetch unread count:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('🔔 Error fetching unread count:', error);
     }
   };
 
@@ -149,7 +137,6 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         fetchUnreadCount();
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
     }
   };
 
@@ -177,7 +164,6 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
     }
   };
 
@@ -204,7 +190,6 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         fetchUnreadCount();
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
     }
   };
 
@@ -230,7 +215,6 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         setIsNotificationDropdownOpen(false);
       }
     } catch (error) {
-      console.error('Error deleting all notifications:', error);
     }
   };
 
@@ -257,7 +241,6 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         setUserProfile(data.user);
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
     } finally {
       setIsLoadingProfile(false);
     }
@@ -273,30 +256,24 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
   // Initial fetch and periodic refresh - optimized
   React.useEffect(() => {
     if (user) {
-      console.log('🔔 User loaded, fetching notifications...');
       fetchNotifications();
       fetchUnreadCount();
     } else {
-      console.log('🔔 No user available for notifications');
     }
   }, [user?.id]); // Only depend on user ID
 
   // Refresh notifications every 30 seconds - optimized
   React.useEffect(() => {
     if (!user) {
-      console.log('🔔 No user, skipping notification refresh interval');
       return;
     }
 
-    console.log('🔔 Setting up notification refresh interval...');
     const interval = setInterval(() => {
-      console.log('🔔 Refreshing notifications...');
       fetchNotifications();
       fetchUnreadCount();
     }, 30000);
 
     return () => {
-      console.log('🔔 Clearing notification refresh interval');
       clearInterval(interval);
     };
   }, [user?.id]); // Only depend on user ID

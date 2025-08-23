@@ -8,12 +8,10 @@ class SchedulerService {
 
   start() {
     if (this.isRunning) {
-      console.log('Scheduler service is already running');
       return;
     }
 
     this.isRunning = true;
-    console.log('Scheduler service started');
 
     // Run every minute to check for scheduled scans
     cron.schedule('* * * * *', async () => {
@@ -25,7 +23,6 @@ class SchedulerService {
       await this.resetMonthlyScanCounts();
     });
 
-    console.log('Scheduled tasks configured');
   }
 
   private async executeScheduledScans() {
@@ -60,7 +57,6 @@ class SchedulerService {
         ]
       });
 
-      console.log(`Found ${dueScans.length} scheduled scans due for execution`);
 
       for (const scheduledScan of dueScans) {
         try {
@@ -81,7 +77,6 @@ class SchedulerService {
             { $inc: { scansThisMonth: 1 } }
           );
 
-          console.log(`✅ Started scheduled scan ${scheduledScan._id} for URL ${scheduledScan.urlId}`);
 
           // Here you would trigger the actual scan execution
           // For now, we'll just mark it as completed
@@ -91,26 +86,21 @@ class SchedulerService {
           });
 
         } catch (error) {
-          console.error(`❌ Error executing scheduled scan ${scheduledScan._id}:`, error);
         }
       }
     } catch (error) {
-      console.error('❌ Error executing scheduled scans:', error);
     }
   }
 
   private async resetMonthlyScanCounts() {
     try {
-      console.log('🔄 Resetting monthly scan counts for all users...');
       
       const result = await User.updateMany(
         {},
         { $set: { scansThisMonth: 0 } }
       );
 
-      console.log(`✅ Reset scan counts for ${result.modifiedCount} users`);
     } catch (error) {
-      console.error('❌ Error resetting monthly scan counts:', error);
     }
   }
 }

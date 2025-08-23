@@ -68,7 +68,6 @@ export default function AddWebsiteModal({ onClose, onWebsiteAdded }: AddWebsiteM
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Add Website Error:', response.status, data);
 
         if (response.status === 401) {
           throw new Error('Authentication failed. Please sign in again.');
@@ -83,7 +82,6 @@ export default function AddWebsiteModal({ onClose, onWebsiteAdded }: AddWebsiteM
 
       onWebsiteAdded(data.website);
     } catch (err: any) {
-      console.error('Add website error:', err);
       setError(err.message || 'Failed to add website');
     } finally {
       setLoading(false);

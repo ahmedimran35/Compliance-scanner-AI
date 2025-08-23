@@ -26,7 +26,6 @@ router.get('/profile', auth_1.authenticateToken, async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching user profile:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -53,7 +52,6 @@ router.patch('/subscription-tier', auth_1.authenticateToken, async (req, res) =>
         });
     }
     catch (error) {
-        console.error('Error updating user subscription tier:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

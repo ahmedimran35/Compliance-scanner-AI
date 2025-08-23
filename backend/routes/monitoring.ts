@@ -46,7 +46,6 @@ router.get('/websites', async (req: AuthenticatedRequest, res: Response) => {
       }))
     });
   } catch (error) {
-    console.error('Error fetching websites:', error);
     res.status(500).json({ error: 'Failed to fetch websites' });
   }
 });
@@ -119,7 +118,6 @@ router.post('/websites', async (req: AuthenticatedRequest, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Error creating website:', error);
     res.status(500).json({ error: 'Failed to create website' });
   }
 });
@@ -161,7 +159,6 @@ router.get('/websites/:id', async (req: AuthenticatedRequest, res: Response) => 
       }
     });
   } catch (error) {
-    console.error('Error fetching website:', error);
     res.status(500).json({ error: 'Failed to fetch website' });
   }
 });
@@ -223,7 +220,6 @@ router.put('/websites/:id', async (req: AuthenticatedRequest, res: Response) => 
 
     // Restart monitoring with new settings if interval changed or website was active
     if (oldInterval !== interval || wasActive) {
-      console.log(`Restarting monitoring for ${website.name} - Interval changed: ${oldInterval} -> ${interval}`);
       await monitoringService.restartMonitoring(id);
     }
 
@@ -246,7 +242,6 @@ router.put('/websites/:id', async (req: AuthenticatedRequest, res: Response) => 
       }
     });
   } catch (error) {
-    console.error('Error updating website:', error);
     res.status(500).json({ error: 'Failed to update website' });
   }
 });
@@ -275,11 +270,9 @@ router.patch('/websites/:id/toggle', async (req: AuthenticatedRequest, res: Resp
 
     if (isActive) {
       // Start monitoring with proper interval management
-      console.log(`Starting monitoring for ${website.name} with ${website.interval} interval`);
       monitoringService.startMonitoring(website);
     } else {
       // Stop monitoring
-      console.log(`Stopping monitoring for ${website.name}`);
       monitoringService.stopMonitoring(id);
     }
 
@@ -302,7 +295,6 @@ router.patch('/websites/:id/toggle', async (req: AuthenticatedRequest, res: Resp
       }
     });
   } catch (error) {
-    console.error('Error toggling website status:', error);
     res.status(500).json({ error: 'Failed to toggle website status' });
   }
 });
@@ -333,7 +325,6 @@ router.delete('/websites/:id', async (req: AuthenticatedRequest, res: Response) 
 
     res.json({ message: 'Website deleted successfully' });
   } catch (error) {
-    console.error('Error deleting website:', error);
     res.status(500).json({ error: 'Failed to delete website' });
   }
 });
@@ -381,7 +372,6 @@ router.post('/websites/:id/check', async (req: AuthenticatedRequest, res: Respon
       }
     });
   } catch (error) {
-    console.error('Error performing manual check:', error);
     res.status(500).json({ error: 'Failed to perform check' });
   }
 });
@@ -419,14 +409,13 @@ router.get('/stats', async (req: AuthenticatedRequest, res: Response) => {
 
     res.json({ stats });
   } catch (error) {
-    console.error('Error fetching monitoring stats:', error);
     res.status(500).json({ error: 'Failed to fetch monitoring stats' });
   }
 });
 
 /**
  * GET /api/monitoring/status
- * Get detailed monitoring status for debugging
+ * Get detailed monitoring status
  */
 router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -439,7 +428,7 @@ router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
     const websites = await Website.find({ userId });
     const monitoringStatus = monitoringService.getMonitoringStatus();
     
-    // Log detailed status for debugging
+
     monitoringService.getDetailedStatus();
 
     res.json({ 
@@ -455,7 +444,6 @@ router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
       }))
     });
   } catch (error) {
-    console.error('Error fetching monitoring status:', error);
     res.status(500).json({ error: 'Failed to fetch monitoring status' });
   }
 });

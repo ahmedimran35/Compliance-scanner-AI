@@ -104,7 +104,6 @@ export default function ScheduledScansPage() {
       const data = await response.json();
       setScheduledScans(data);
     } catch (err) {
-      console.error('Error fetching scheduled scans:', err);
       setError('Failed to fetch scheduled scans. Please try again.');
     } finally {
       setLoading(false);
@@ -116,7 +115,7 @@ export default function ScheduledScansPage() {
     if (!user || !isLoaded) return;
 
     const interval = setInterval(() => {
-      console.log('Polling for scheduled scans updates...');
+      
       fetchScheduledScans();
     }, 30000); // 30 seconds
 
@@ -144,7 +143,6 @@ export default function ScheduledScansPage() {
         ));
       }
     } catch (error) {
-      console.error('Error toggling scheduled scan:', error);
     }
   };
 
@@ -170,7 +168,6 @@ export default function ScheduledScansPage() {
         setScheduledScans(prev => prev.filter(scan => scan._id !== scanId));
       }
     } catch (error) {
-      console.error('Error deleting scheduled scan:', error);
     }
   };
 

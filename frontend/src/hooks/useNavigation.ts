@@ -13,11 +13,9 @@ export const useNavigation = (options: UseNavigationOptions = {}) => {
 
   const navigate = useCallback((href: string) => {
     if (isNavigating) {
-      console.log('🚫 Navigation blocked - already navigating');
       return;
     }
 
-    console.log(`🚀 Navigating to: ${href}`);
     setIsNavigating(true);
     
     // Call optional callback
@@ -34,11 +32,9 @@ export const useNavigation = (options: UseNavigationOptions = {}) => {
 
   const navigateBack = useCallback(() => {
     if (isNavigating) {
-      console.log('🚫 Back navigation blocked - already navigating');
       return;
     }
 
-    console.log('🚀 Navigating back');
     setIsNavigating(true);
     
     // Call optional callback
