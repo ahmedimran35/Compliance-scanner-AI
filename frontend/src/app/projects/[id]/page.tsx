@@ -782,7 +782,7 @@ export default function ProjectDetailPage() {
                             url = urls.find(u => String(u._id) === urlId);
                           }
                           
-                  
+                          // Add debugging for scan structure
                           if (index === 0) {
                           }
                           

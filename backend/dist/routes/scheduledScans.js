@@ -18,9 +18,10 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
         if (!url) {
             return res.status(404).json({ error: 'URL not found' });
         }
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: url.projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
@@ -58,8 +59,11 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
 // Get all scheduled scans for a user
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+        const projects = await Project_1.default.find({ ownerId: { $in: ownerIds } });
+        const projectIds = projects.map(p => p._id);
         const scheduledScans = await ScheduledScan_1.default.find({
-            ownerId: req.user.clerkId
+            projectId: { $in: projectIds }
         })
             .populate('urlId', 'url name')
             .populate('projectId', 'name')
@@ -75,16 +79,16 @@ router.get('/project/:projectId', auth_1.authenticateToken, async (req, res) => 
     try {
         const { projectId } = req.params;
         // Verify project belongs to user
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
         }
         const scheduledScans = await ScheduledScan_1.default.find({
             projectId,
-            ownerId: req.user.clerkId
         })
             .populate('urlId', 'url name')
             .sort({ createdAt: -1 });
@@ -99,9 +103,10 @@ router.put('/:scheduledScanId', auth_1.authenticateToken, async (req, res) => {
     try {
         const { scheduledScanId } = req.params;
         const { frequency, time, dayOfWeek, dayOfMonth, scanOptions, isActive } = req.body;
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const scheduledScan = await ScheduledScan_1.default.findOne({
             _id: scheduledScanId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!scheduledScan) {
             return res.status(404).json({ error: 'Scheduled scan not found' });
@@ -139,9 +144,10 @@ router.put('/:scheduledScanId', auth_1.authenticateToken, async (req, res) => {
 router.delete('/:scheduledScanId', auth_1.authenticateToken, async (req, res) => {
     try {
         const { scheduledScanId } = req.params;
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const scheduledScan = await ScheduledScan_1.default.findOne({
             _id: scheduledScanId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!scheduledScan) {
             return res.status(404).json({ error: 'Scheduled scan not found' });
@@ -157,9 +163,10 @@ router.delete('/:scheduledScanId', auth_1.authenticateToken, async (req, res) =>
 router.patch('/:scheduledScanId/toggle', auth_1.authenticateToken, async (req, res) => {
     try {
         const { scheduledScanId } = req.params;
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const scheduledScan = await ScheduledScan_1.default.findOne({
             _id: scheduledScanId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!scheduledScan) {
             return res.status(404).json({ error: 'Scheduled scan not found' });

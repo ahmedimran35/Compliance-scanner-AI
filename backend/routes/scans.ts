@@ -338,7 +338,7 @@ async function performScan(scanId: string, url: string, options: any) {
     const scanner = new WebsiteScanner(url);
     const results = await scanner.scan(options);
 
-    
+    // Debug: Log technical details
 
     // Update scan with results (use scanDuration from scanner results)
     await Scan.findByIdAndUpdate(scanId, {

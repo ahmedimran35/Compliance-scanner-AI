@@ -22,9 +22,10 @@ router.post('/:urlId', auth_1.authenticateToken, async (req, res) => {
         if (!url) {
             return res.status(404).json({ error: 'URL not found' });
         }
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: url.projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
@@ -34,17 +35,23 @@ router.post('/:urlId', auth_1.authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Check if user can perform scan
-        const canScan = user.canPerformScan();
-        if (!canScan.allowed) {
-            return res.status(403).json({
-                error: 'Scan limit reached',
-                reason: canScan.reason,
-                upgradeRequired: true
-            });
-        }
-        // Increment scan usage
-        await user.incrementScanUsage();
+        // TEMPORARILY REMOVED: Monthly scan limit check for free users
+        // Count scans this month
+        // const startOfMonth = new Date();
+        // startOfMonth.setDate(1);
+        // startOfMonth.setHours(0, 0, 0, 0);
+        // const scansThisMonth = await Scan.countDocuments({
+        //   projectId: project._id,
+        //   createdAt: { $gte: startOfMonth }
+        // });
+        // if (user.tier === 'free' && scansThisMonth >= 5) {
+        //   return res.status(403).json({ 
+        //     error: 'Scan limit reached',
+        //     message: 'Free tier allows maximum 5 scans per month. Upgrade to Pro for unlimited scans.',
+        //     currentCount: scansThisMonth,
+        //     maxAllowed: 5
+        //   });
+        // }
         // Check if there's already a scan in progress for this URL
         const existingScan = await Scan_1.default.findOne({
             urlId,
@@ -83,6 +90,8 @@ router.post('/:urlId', auth_1.authenticateToken, async (req, res) => {
             scanOptions: finalOptions,
         });
         await scan.save();
+        // Update user's scansThisMonth count
+        await User_1.default.findOneAndUpdate({ clerkId: req.user.clerkId }, { $inc: { scansThisMonth: 1 } });
         // Start the scan asynchronously
         performScan(scan._id.toString(), url.url, finalOptions).catch(error => {
         });
@@ -117,7 +126,8 @@ router.get('/test-auth', auth_1.authenticateToken, async (req, res) => {
 router.get('/recent', auth_1.authenticateToken, async (req, res) => {
     try {
         // Get all projects for the user
-        const projects = await Project_1.default.find({ ownerId: req.user.clerkId });
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+        const projects = await Project_1.default.find({ ownerId: { $in: ownerIds } });
         const projectIds = projects.map(project => project._id);
         // Get recent scans from all user's projects
         const scans = await Scan_1.default.find({
@@ -137,7 +147,8 @@ router.get('/recent', auth_1.authenticateToken, async (req, res) => {
 router.get('/monthly-count', auth_1.authenticateToken, async (req, res) => {
     try {
         // Get all projects for the user
-        const projects = await Project_1.default.find({ ownerId: req.user.clerkId });
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+        const projects = await Project_1.default.find({ ownerId: { $in: ownerIds } });
         const projectIds = projects.map(project => project._id);
         // Calculate start of current month
         const startOfMonth = new Date();
@@ -154,45 +165,33 @@ router.get('/monthly-count', auth_1.authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-/**
- * GET /api/scans/:id
- * Get scan details with premium feature access control
- */
-router.get('/:id', async (req, res) => {
+// Get scan results
+router.get('/:scanId', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user?._id;
-        const { id } = req.params;
-        const { section } = req.query; // 'technical', 'seo', 'performance', 'security', 'gdpr', 'accessibility'
-        if (!userId) {
-            return res.status(401).json({ error: 'User not authenticated' });
+        const { scanId } = req.params;
+        // Validate scanId is provided
+        if (!scanId || scanId === 'undefined') {
+            return res.status(400).json({ error: 'Invalid scan ID provided' });
         }
-        const user = await User_1.default.findById(userId);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        // Check premium feature access for certain sections
-        const premiumSections = ['security', 'seo', 'performance'];
-        if (premiumSections.includes(section) && !user.canAccessPremiumFeatures()) {
-            return res.status(403).json({
-                error: 'Premium feature access required',
-                message: 'This analysis section requires a Pro subscription. Upgrade to access full security, SEO, and performance analysis.',
-                upgradeRequired: true,
-                section: section
-            });
-        }
-        const scan = await Scan_1.default.findById(id).populate('projectId').populate('urlId');
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+        const scan = await Scan_1.default.findById(scanId).populate({
+            path: 'urlId',
+            populate: {
+                path: 'projectId',
+                match: { ownerId: { $in: ownerIds } }
+            }
+        });
         if (!scan) {
             return res.status(404).json({ error: 'Scan not found' });
         }
-        // Check if user owns the scan
-        const project = scan.projectId;
-        if (project.ownerId !== req.user.clerkId) {
-            return res.status(403).json({ error: 'Access denied' });
+        if (!scan.urlId || !scan.urlId.projectId) {
+            return res.status(404).json({ error: 'Project not found' });
         }
-        res.json({ scan });
+        // Return scan data directly as expected by frontend
+        res.json(scan);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to fetch scan' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 // Get scan history for a project
@@ -200,9 +199,10 @@ router.get('/project/:projectId', auth_1.authenticateToken, async (req, res) => 
     try {
         const { projectId } = req.params;
         // Verify project belongs to user
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
@@ -222,9 +222,10 @@ router.get('/url/:urlId', auth_1.authenticateToken, async (req, res) => {
     try {
         const { urlId } = req.params;
         // Verify URL belongs to user
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const url = await URL_1.default.findById(urlId).populate({
             path: 'projectId',
-            match: { ownerId: req.user.clerkId }
+            match: { ownerId: { $in: ownerIds } }
         });
         if (!url || !url.projectId) {
             return res.status(404).json({ error: 'URL not found' });
@@ -242,18 +243,21 @@ router.get('/url/:urlId', auth_1.authenticateToken, async (req, res) => {
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
         const user = req.user;
+        const ownerIds = [user.clerkId, user.email].filter(Boolean);
         // Find all URLs belonging to the user's projects
-        const userProjects = await Project_1.default.find({ ownerId: user.clerkId });
+        const userProjects = await Project_1.default.find({ ownerId: { $in: ownerIds } });
         const projectIds = userProjects.map(project => project._id);
         // Find all URLs in these projects
         const userUrls = await URL_1.default.find({ projectId: { $in: projectIds } });
         const urlIds = userUrls.map(url => url._id);
+        // Honor limit query param
+        const limit = Math.min(parseInt(String(req.query.limit)) || 100, 100);
         // Find all scans for these URLs
         const scans = await Scan_1.default.find({ urlId: { $in: urlIds } })
             .populate('urlId', 'url name')
             .populate('projectId', 'name')
             .sort({ createdAt: -1 })
-            .limit(100); // Limit to last 100 scans for performance
+            .limit(limit);
         res.json(scans);
     }
     catch (error) {
@@ -264,8 +268,9 @@ router.get('/', auth_1.authenticateToken, async (req, res) => {
 router.get('/urls', auth_1.authenticateToken, async (req, res) => {
     try {
         const user = req.user;
+        const ownerIds = [user.clerkId, user.email].filter(Boolean);
         // Find all URLs belonging to the user's projects
-        const userProjects = await Project_1.default.find({ ownerId: user.clerkId });
+        const userProjects = await Project_1.default.find({ ownerId: { $in: ownerIds } });
         const projectIds = userProjects.map(project => project._id);
         const urls = await URL_1.default.find({ projectId: { $in: projectIds } })
             .populate('projectId', 'name')
@@ -284,6 +289,7 @@ async function performScan(scanId, url, options) {
         // Perform the scan
         const scanner = new scanner_1.WebsiteScanner(url);
         const results = await scanner.scan(options);
+        // Debug: Log technical details
         // Update scan with results (use scanDuration from scanner results)
         await Scan_1.default.findByIdAndUpdate(scanId, {
             status: 'completed',
@@ -300,34 +306,13 @@ async function performScan(scanId, url, options) {
                 try {
                     await notificationService_1.default.createScanCompletedNotification(user._id.toString(), scanId, project._id.toString(), url, results);
                 }
-                catch (notificationError) {
+                catch (notifyError) {
                 }
             }
-            else {
-            }
-        }
-        else {
         }
     }
     catch (error) {
-        // Update scan with error
-        await Scan_1.default.findByIdAndUpdate(scanId, {
-            status: 'failed',
-            errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        });
-        // Create a notification for failed scan
-        try {
-            const failedScan = await Scan_1.default.findById(scanId).populate('projectId');
-            if (failedScan && failedScan.projectId) {
-                const project = failedScan.projectId;
-                const user = await User_1.default.findOne({ clerkId: project.ownerId });
-                if (user) {
-                    await notificationService_1.default.createScanFailedNotification(user._id.toString(), scanId, project._id.toString(), url, error instanceof Error ? error.message : 'Unknown error');
-                }
-            }
-        }
-        catch (notificationError) {
-        }
+        await Scan_1.default.findByIdAndUpdate(scanId, { status: 'failed' });
     }
 }
 exports.default = router;

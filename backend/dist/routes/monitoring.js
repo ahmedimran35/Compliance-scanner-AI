@@ -185,13 +185,18 @@ router.put('/websites/:id', async (req, res) => {
         if (existingWebsite) {
             return res.status(400).json({ error: 'Website with this URL already exists' });
         }
+        // Store old interval for comparison
+        const oldInterval = website.interval;
+        const wasActive = website.isActive;
         // Update website
         website.name = name.trim();
         website.url = url.trim();
         website.interval = interval;
         await website.save();
-        // Restart monitoring with new settings
-        monitoringService_1.default.restartMonitoring(website);
+        // Restart monitoring with new settings if interval changed or website was active
+        if (oldInterval !== interval || wasActive) {
+            await monitoringService_1.default.restartMonitoring(id);
+        }
         res.json({
             website: {
                 _id: website._id,
@@ -234,8 +239,8 @@ router.patch('/websites/:id/toggle', async (req, res) => {
         website.isActive = isActive;
         await website.save();
         if (isActive) {
-            // Start monitoring
-            monitoringService_1.default.restartMonitoring(website);
+            // Start monitoring with proper interval management
+            monitoringService_1.default.startMonitoring(website);
         }
         else {
             // Stop monitoring
@@ -365,7 +370,10 @@ router.get('/stats', async (req, res) => {
     }
 });
 /**
+ * GET /api/monitoring/status
+ * Get detailed monitoring status for debugging
  */
+router.get('/status', async (req, res) => {
     try {
         const userId = req.user?._id;
         if (!userId) {
@@ -373,7 +381,7 @@ router.get('/stats', async (req, res) => {
         }
         const websites = await Website_1.default.find({ userId });
         const monitoringStatus = monitoringService_1.default.getMonitoringStatus();
-        // Log detailed status to console
+        // Log detailed status for debugging
         monitoringService_1.default.getDetailedStatus();
         res.json({
             monitoringStatus,
@@ -384,12 +392,12 @@ router.get('/stats', async (req, res) => {
                 interval: website.interval,
                 isActive: website.isActive,
                 status: website.status,
-                lastCheck: website.lastCheck,
-                hasActiveInterval: monitoringStatus.intervals.has(website._id.toString())
+                lastCheck: website.lastCheck
             }))
         });
     }
     catch (error) {
+        res.status(500).json({ error: 'Failed to fetch monitoring status' });
     }
 });
 exports.default = router;

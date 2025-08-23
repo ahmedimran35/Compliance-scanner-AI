@@ -14,12 +14,15 @@ const router = Router();
 // Get user profile
 router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('Profile request for user:', req.user.clerkId);
     const user = await User.findOne({ clerkId: req.user.clerkId });
     
     if (!user) {
+      console.log('User not found for clerkId:', req.user.clerkId);
       return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('Found user:', {
       _id: user._id,
       email: user.email,
       firstName: user.firstName,
@@ -52,8 +55,10 @@ router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res:
       }
     };
 
+    console.log('Sending response:', responseData);
     res.json(responseData);
   } catch (error) {
+    console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -94,6 +99,7 @@ router.put('/profile', authenticateToken, async (req: AuthenticatedRequest, res:
       }
     });
   } catch (error) {
+    console.error('Error updating user profile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -137,8 +143,10 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
       // Use the actual amount from Stripe session
       const actualAmount = session.amount_total ? session.amount_total / 100 : amount || 0;
 
+      console.log(`Processing verified donation: $${actualAmount} from user ${req.user.clerkId} for tier: ${tierName}`);
 
     } catch (stripeError) {
+      console.error('Stripe verification failed:', stripeError);
       return res.status(400).json({ error: 'Payment verification failed' });
     }
 
@@ -146,9 +154,11 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
     const user = await User.findOne({ clerkId: req.user.clerkId });
     
     if (!user) {
+      console.error('User not found for clerkId:', req.user.clerkId);
       return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('Found user:', {
       _id: user._id,
       clerkId: user.clerkId,
       email: user.email,
@@ -160,6 +170,7 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
     const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
     const donationAmount = stripeSession.amount_total ? stripeSession.amount_total / 100 : 0;
 
+    console.log('Donation details:', {
       sessionId,
       donationAmount,
       tierName,
@@ -191,9 +202,11 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
     );
 
     if (!updatedUser) {
+      console.error('Failed to update user after donation');
       return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('User updated successfully:', {
       _id: updatedUser._id,
       isSupporter: updatedUser.isSupporter,
       supporterTier: updatedUser.supporterTier,
@@ -209,6 +222,7 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
         `You've successfully donated $${donationAmount} and are now a valued supporter of ComplianceScanner AI.`
       );
     } catch (notificationError) {
+      console.error('Failed to create donation notification:', notificationError);
     }
 
     res.json({
@@ -226,6 +240,8 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
       }
     });
   } catch (error) {
+    console.error('Error processing donation:', error);
+    console.error('Error details:', {
       sessionId: req.body.sessionId,
       tierId: req.body.tierId,
       tierName: req.body.tierName,
@@ -240,9 +256,11 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
 // Fix user statistics by recalculating from database
 router.post('/fix-stats', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('🔧 Fixing user statistics for:', req.user.clerkId);
     
     // Count actual projects for this user
     const projectCount = await Project.countDocuments({ ownerId: req.user.clerkId });
+    console.log(`  Projects in DB: ${projectCount}`);
     
     // Count actual scans this month for this user
     const startOfMonth = new Date();
@@ -259,6 +277,7 @@ router.post('/fix-stats', authenticateToken, async (req: AuthenticatedRequest, r
       createdAt: { $gte: startOfMonth }
     });
     
+    console.log(`  Scans this month: ${scansThisMonth}`);
     
     // Update user with correct counts
     const updatedUser = await User.findOneAndUpdate(
@@ -274,6 +293,7 @@ router.post('/fix-stats', authenticateToken, async (req: AuthenticatedRequest, r
       return res.status(404).json({ error: 'User not found' });
     }
     
+    console.log(`  ✅ Updated user stats: projects=${updatedUser.projects}, scansThisMonth=${updatedUser.scansThisMonth}`);
     
     res.json({
       message: 'User statistics fixed successfully',
@@ -298,6 +318,7 @@ router.post('/fix-stats', authenticateToken, async (req: AuthenticatedRequest, r
     });
     
   } catch (error) {
+    console.error('❌ Error fixing user stats:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

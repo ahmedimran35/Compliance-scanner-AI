@@ -58,6 +58,7 @@ export const authenticateToken = async (
         email = `user_${decoded.sub}@placeholder.com`;
       }
       
+      console.log('🔍 Token debug info:', {
         hasEmail: !!decoded.email,
         hasEmailAddresses: !!decoded.email_addresses,
         emailAddressesType: typeof decoded.email_addresses,

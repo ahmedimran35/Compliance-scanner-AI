@@ -1,38 +1,30 @@
 import mongoose, { Document } from 'mongoose';
 export interface IUser extends Document {
-    _id: mongoose.Types.ObjectId;
     clerkId: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    subscriptionTier: 'free' | 'pro' | 'enterprise';
-    stripeCustomerId?: string;
-    stripeSubscriptionId?: string;
-    subscriptionStatus: 'active' | 'inactive' | 'cancelled' | 'past_due';
-    currentPeriodStart?: Date;
-    currentPeriodEnd?: Date;
-    usageStats: {
-        scansThisMonth: number;
-        projectsCreated: number;
-        lastResetDate: Date;
-    };
+    firstName?: string;
+    lastName?: string;
+    isSupporter: boolean;
+    supporterTier?: string;
+    supporterSince?: Date;
+    totalDonations: number;
+    donationHistory: Array<{
+        amount: number;
+        tierId: string;
+        tierName: string;
+        date: Date;
+        status: string;
+        sessionId: string;
+    }>;
+    projects: number;
+    scansThisMonth: number;
+    maxProjects: number;
+    maxScansPerMonth: number;
     createdAt: Date;
     updatedAt: Date;
-    canPerformScan(): {
-        allowed: boolean;
-        reason?: string;
-    };
-    canCreateProject(): {
-        allowed: boolean;
-        reason?: string;
-    };
-    canAccessPremiumFeatures(): boolean;
-    incrementScanUsage(): Promise<IUser>;
-    incrementProjectUsage(): Promise<IUser>;
-    resetMonthlyUsage(): Promise<IUser>;
 }
 declare const _default: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
-    _id: mongoose.Types.ObjectId;
+    _id: unknown;
 }> & {
     __v: number;
 }, any>;

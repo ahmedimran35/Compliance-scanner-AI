@@ -13,7 +13,7 @@ declare class MonitoringService {
      */
     performCheck(website: IWebsite): Promise<void>;
     /**
-     * Start monitoring a website with its specific interval
+     * Start monitoring a website with proper interval management
      */
     startMonitoring(website: IWebsite): void;
     /**
@@ -21,17 +21,13 @@ declare class MonitoringService {
      */
     stopMonitoring(websiteId: string): void;
     /**
-     * Restart monitoring for a website (useful when interval is changed)
+     * Restart monitoring for a website (useful when interval changes)
      */
-    restartMonitoring(website: IWebsite): void;
+    restartMonitoring(websiteId: string): Promise<void>;
     /**
      * Start monitoring all active websites for a user
      */
     startMonitoringForUser(userId: string): Promise<void>;
-    /**
-     * Start monitoring for all users (called on server startup)
-     */
-    start(): Promise<void>;
     /**
      * Stop monitoring all websites for a user
      */
@@ -46,16 +42,20 @@ declare class MonitoringService {
     getMonitoringStatus(): {
         active: number;
         total: number;
-        intervals: Map<string, string>;
+        details: Array<{
+            id: string;
+            interval: string;
+            lastCheck: Date;
+        }>;
     };
-    /**
-     * Get detailed monitoring info
-     */
-    getDetailedStatus(): void;
     /**
      * Clean up all monitoring intervals (useful for graceful shutdown)
      */
     cleanup(): void;
+    /**
+     * Get detailed monitoring information for debugging
+     */
+    getDetailedStatus(): void;
 }
 declare const _default: MonitoringService;
 export default _default;

@@ -16,34 +16,16 @@ router.get('/profile', auth_1.authenticateToken, async (req, res) => {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            subscriptionTier: user.subscriptionTier,
-            subscriptionStatus: user.subscriptionStatus,
-            usageStats: user.usageStats,
+            isSupporter: user.isSupporter,
+            supporterTier: user.supporterTier,
+            supporterSince: user.supporterSince,
+            totalDonations: user.totalDonations,
+            donationHistory: user.donationHistory,
+            projects: user.projects,
+            scansThisMonth: user.scansThisMonth,
+            maxProjects: user.maxProjects,
+            maxScansPerMonth: user.maxScansPerMonth,
             createdAt: user.createdAt,
-        });
-    }
-    catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-// Update user subscription tier (for future Stripe integration)
-router.patch('/subscription-tier', auth_1.authenticateToken, async (req, res) => {
-    try {
-        const { subscriptionTier } = req.body;
-        const user = req.user;
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        if (!['free', 'pro', 'enterprise'].includes(subscriptionTier)) {
-            return res.status(400).json({ error: 'Invalid subscription tier' });
-        }
-        user.subscriptionTier = subscriptionTier;
-        await user.save();
-        res.json({
-            message: 'Subscription tier updated successfully',
-            subscriptionTier: user.subscriptionTier,
-            subscriptionStatus: user.subscriptionStatus,
-            usageStats: user.usageStats,
         });
     }
     catch (error) {
@@ -57,27 +39,19 @@ router.get('/usage', auth_1.authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Get limits based on subscription tier
-        const limits = {
-            free: { scans: 10, projects: 3 },
-            pro: { scans: 100, projects: 20 },
-            enterprise: { scans: -1, projects: -1 }
-        };
-        const tier = user.subscriptionTier;
-        const limit = limits[tier];
         const usage = {
             projects: {
-                current: user.usageStats.projectsCreated,
-                max: limit.projects,
-                unlimited: limit.projects === -1,
+                current: user.projects,
+                max: user.maxProjects,
+                unlimited: user.maxProjects === -1,
             },
             scans: {
-                current: user.usageStats.scansThisMonth,
-                max: limit.scans,
-                unlimited: limit.scans === -1,
+                current: user.scansThisMonth,
+                max: user.maxScansPerMonth,
+                unlimited: user.maxScansPerMonth === -1,
             },
-            subscriptionTier: user.subscriptionTier,
-            subscriptionStatus: user.subscriptionStatus,
+            isSupporter: user.isSupporter,
+            supporterTier: user.supporterTier,
         };
         res.json(usage);
     }

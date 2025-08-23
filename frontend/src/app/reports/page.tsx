@@ -704,7 +704,7 @@ export default function ReportsPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-              
+                              // TODO: Implement download functionality
                               alert('Download functionality coming soon!');
                             }}
                             className="p-2 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"

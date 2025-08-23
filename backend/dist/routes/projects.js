@@ -12,7 +12,8 @@ const router = (0, express_1.Router)();
 // Get all projects for the authenticated user
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
-        const projects = await Project_1.default.find({ ownerId: req.user.clerkId })
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+        const projects = await Project_1.default.find({ ownerId: { $in: ownerIds } })
             .sort({ createdAt: -1 })
             .lean();
         // Get URL counts for each project
@@ -33,9 +34,10 @@ router.get('/', auth_1.authenticateToken, async (req, res) => {
 router.get('/:projectId', auth_1.authenticateToken, async (req, res) => {
     try {
         const { projectId } = req.params;
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
@@ -66,41 +68,23 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Check if user can create project
-        const canCreate = user.canCreateProject();
-        if (!canCreate.allowed) {
-            return res.status(403).json({
-                error: 'Project limit reached',
-                reason: canCreate.reason,
-                upgradeRequired: true
-            });
-        }
-        // Increment project usage
-        await user.incrementProjectUsage();
         const projectCount = await Project_1.default.countDocuments({ ownerId: req.user.clerkId });
         // Allow Quick Scan projects to bypass the limit
         // Quick Scan projects are identified by having exactly 1 URL and being created via Quick Scan
         const isQuickScanProject = urls && Array.isArray(urls) && urls.length === 1;
-        // Check if user can create a project
-        const canCreateResult = user.canCreateProject();
-        if (!canCreateResult.allowed && !isQuickScanProject) {
+        // All users now have unlimited projects - removed tier restrictions
+        if (projectCount >= user.maxProjects && !isQuickScanProject && user.maxProjects !== -1) {
             return res.status(403).json({
                 error: 'Project limit reached',
-                message: canCreateResult.reason,
+                message: `Maximum ${user.maxProjects} project(s) allowed.`,
                 currentCount: projectCount,
-                maxAllowed: user.subscriptionTier === 'free' ? 3 : user.subscriptionTier === 'pro' ? 20 : -1
+                maxAllowed: user.maxProjects
             });
         }
         // Validate URLs if provided
         if (urls && Array.isArray(urls)) {
-            if (user.subscriptionTier === 'free' && urls.length > 5) {
-                return res.status(403).json({
-                    error: 'URL limit exceeded',
-                    message: 'Free tier allows maximum 5 URLs per project. Upgrade to Pro for unlimited URLs.',
-                    currentCount: urls.length,
-                    maxAllowed: 5
-                });
-            }
+            // All users now have unlimited URLs - removed tier restrictions
+            // Keeping validation for data integrity but not restricting by count
         }
         const project = new Project_1.default({
             name: name.trim(),
@@ -108,6 +92,8 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
             ownerId: req.user.clerkId,
         });
         await project.save();
+        // Update user's project count
+        await User_1.default.findOneAndUpdate({ clerkId: req.user.clerkId }, { $inc: { projects: 1 } });
         // Create URLs if provided
         let createdUrls = [];
         if (urls && Array.isArray(urls) && urls.length > 0) {
@@ -177,6 +163,8 @@ router.delete('/:projectId', auth_1.authenticateToken, async (req, res) => {
         await URL_1.default.deleteMany({ projectId });
         // Delete the project
         await Project_1.default.findByIdAndDelete(projectId);
+        // Update user's project count
+        await User_1.default.findOneAndUpdate({ clerkId: req.user.clerkId }, { $inc: { projects: -1 } });
         res.json({ message: 'Project and all associated URLs deleted successfully' });
     }
     catch (error) {
@@ -188,9 +176,10 @@ router.get('/:projectId/urls', auth_1.authenticateToken, async (req, res) => {
     try {
         const { projectId } = req.params;
         // Verify project exists and belongs to user
+        const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
         const project = await Project_1.default.findOne({
             _id: projectId,
-            ownerId: req.user.clerkId
+            ownerId: { $in: ownerIds }
         });
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
@@ -226,14 +215,8 @@ router.post('/:projectId/urls', auth_1.authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         const urlCount = await URL_1.default.countDocuments({ projectId });
-        if (user.subscriptionTier === 'free' && urlCount >= 5) {
-            return res.status(403).json({
-                error: 'URL limit reached',
-                message: 'Free tier allows maximum 5 URLs per project. Upgrade to Pro for unlimited URLs.',
-                currentCount: urlCount,
-                maxAllowed: 5
-            });
-        }
+        // All users now have unlimited URLs - removed tier restrictions
+        // Keeping validation for data integrity but not restricting by count
         // Check if URL already exists in this project
         const existingUrl = await URL_1.default.findOne({
             projectId,

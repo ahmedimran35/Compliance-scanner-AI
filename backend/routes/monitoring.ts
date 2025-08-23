@@ -415,7 +415,7 @@ router.get('/stats', async (req: AuthenticatedRequest, res: Response) => {
 
 /**
  * GET /api/monitoring/status
- * Get detailed monitoring status
+ * Get detailed monitoring status for debugging
  */
 router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -428,7 +428,7 @@ router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
     const websites = await Website.find({ userId });
     const monitoringStatus = monitoringService.getMonitoringStatus();
     
-
+    // Log detailed status for debugging
     monitoringService.getDetailedStatus();
 
     res.json({ 

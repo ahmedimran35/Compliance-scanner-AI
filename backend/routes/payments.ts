@@ -55,6 +55,7 @@ router.post('/create-checkout-session', authenticateToken, async (req: Authentic
 
     res.json({ sessionUrl: session.url });
   } catch (error) {
+    console.error('Error creating checkout session:', error);
     res.status(500).json({ error: 'Failed to create payment session' });
   }
 });
@@ -94,6 +95,7 @@ router.post('/verify-payment', authenticateToken, async (req: AuthenticatedReque
       customerEmail: session.customer_details?.email,
     });
   } catch (error) {
+    console.error('Error verifying payment:', error);
     res.status(500).json({ error: 'Failed to verify payment' });
   }
 });
@@ -108,6 +110,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: e
   try {
     event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret || '');
   } catch (err) {
+    console.error('Webhook signature verification failed:', err);
     return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 
@@ -115,9 +118,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: e
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
+      console.log('Payment successful for session:', session.id);
       // Here you could add additional logic like sending confirmation emails
       break;
     default:
+      console.log(`Unhandled event type ${event.type}`);
   }
 
   res.json({ received: true });

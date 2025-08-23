@@ -395,7 +395,7 @@ export default function ScanDetailPage() {
                 <p className="text-red-700 mb-6">{error}</p>
                 
                 <div className="bg-white rounded-xl p-4 mb-6">
-                  <h3 className="font-semibold text-gray-800 mb-2">Technical Information:</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">Debug Information:</h3>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>Scan ID:</strong> {scanId}</p>
                     <p><strong>API URL:</strong> {getApiUrl()}</p>
