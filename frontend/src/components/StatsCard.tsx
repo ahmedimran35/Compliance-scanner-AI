@@ -57,6 +57,8 @@ export default function StatsCard({ title, value, icon: Icon, color, loading = f
 
   return (
     <motion.div
+      data-testid="stats-card"
+      data-loading={loading}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
@@ -80,7 +82,7 @@ export default function StatsCard({ title, value, icon: Icon, color, loading = f
           )}
         </div>
         <div className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
-          <Icon className={`w-6 h-6 ${colors.icon}`} />
+          <Icon data-testid="stats-icon" className={`w-6 h-6 ${colors.icon}`} />
         </div>
       </div>
     </motion.div>

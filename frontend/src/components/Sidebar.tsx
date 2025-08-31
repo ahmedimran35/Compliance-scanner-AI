@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useUser, SignOutButton, useAuth } from '@clerk/nextjs';
-import { Shield, LogOut, Menu, X, ChevronDown, Bell, Settings, User, Crown, Calendar, Activity, BarChart3, FolderOpen, Zap, CreditCard, HelpCircle, CheckCircle, AlertTriangle, Info, Clock, Heart, PanelLeftClose, Newspaper } from 'lucide-react';
+import { Shield, LogOut, Menu, X, ChevronDown, Bell, Settings, User, Crown, Calendar, Activity, BarChart3, FolderOpen, Zap, CreditCard, HelpCircle, CheckCircle, AlertTriangle, Info, Clock, Heart, PanelLeftClose, Newspaper, MessageSquare } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiUrl } from '@/config/api';
@@ -48,6 +48,8 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
   const [loading, setLoading] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(false);
+  const [touchStart, setTouchStart] = React.useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
@@ -262,6 +264,20 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
     }
   }, [user?.id]); // Only depend on user ID
 
+  // Keyboard event handler for closing sidebar with Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen && window.innerWidth < 1024) {
+        onToggle();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onToggle]);
+
   // Refresh notifications every 30 seconds - optimized
   React.useEffect(() => {
     if (!user) {
@@ -289,7 +305,7 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
     
     // Close sidebar on mobile after navigation
     if (window.innerWidth < 1024) {
-      onToggle();
+      setTimeout(() => onToggle(), 100); // Small delay to ensure navigation starts
     }
     
     // Reset navigation state after a short delay
@@ -354,6 +370,13 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
       description: 'Overview & Analytics'
     },
     { 
+      name: 'Security Engine', 
+      href: '/security-engine', 
+      current: pathname === '/security-engine',
+      icon: Zap,
+      description: 'Free Security Tools'
+    },
+    { 
       name: 'Projects', 
       href: '/projects', 
       current: pathname === '/projects',
@@ -389,6 +412,13 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
       description: 'Latest Updates'
     },
     { 
+      name: 'Feedback', 
+      href: '/feedback', 
+      current: pathname === '/feedback',
+      icon: MessageSquare,
+      description: 'Share Your Thoughts'
+    },
+    { 
       name: 'Donate', 
       href: '/donation', 
       current: pathname === '/donation',
@@ -399,6 +429,29 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
 
   const handleLogoClick = () => {
     router.push('/dashboard');
+  };
+
+  // Touch event handlers for swipe-to-close on mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50; // Minimum swipe distance
+    
+    if (isLeftSwipe && window.innerWidth < 1024) {
+      onToggle(); // Close sidebar on left swipe
+    }
+    
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   if (!isLoaded || !user) {
@@ -416,12 +469,18 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
             onClick={onToggle}
+            onTouchEnd={onToggle}
+            style={{ touchAction: 'none' }}
+            aria-label="Close sidebar overlay"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar */}
       <motion.aside
+        data-testid="sidebar"
+        data-open={isOpen}
+        data-hidden={isHidden}
         initial={{ x: -280 }}
         animate={{ x: isHidden ? -280 : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -429,6 +488,9 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
           isHidden ? 'lg:-translate-x-full' : 'lg:translate-x-0'
         }`}
         style={{ height: '100vh' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200/30">
@@ -450,7 +512,7 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex items-center space-x-2">
-                  <span>ComplianceScanner AI</span>
+                  <span>WebShield AI</span>
                   <span className="text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-full font-medium shadow-sm">
                     Alpha
                   </span>
@@ -475,7 +537,9 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
             onClick={onToggle}
             whileHover={{ scale: 1.05, rotate: 5 }}
             whileTap={{ scale: 0.95 }}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/50 transition-all duration-300 hover:shadow-md"
+            className="lg:hidden p-2 rounded-lg hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/50 transition-all duration-300 hover:shadow-md touch-manipulation"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+            aria-label="Close sidebar"
           >
             <X className="w-5 h-5 text-gray-600" />
           </motion.button>

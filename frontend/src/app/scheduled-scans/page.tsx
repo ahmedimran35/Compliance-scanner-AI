@@ -116,7 +116,9 @@ export default function ScheduledScansPage() {
     if (!user || !isLoaded) return;
 
     const interval = setInterval(() => {
-      console.log('Polling for scheduled scans updates...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Polling for scheduled scans updates...');
+      }
       fetchScheduledScans();
     }, 30000); // 30 seconds
 
@@ -144,7 +146,9 @@ export default function ScheduledScansPage() {
         ));
       }
     } catch (error) {
-      console.error('Error toggling scheduled scan:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error toggling scheduled scan:', error);
+      }
     }
   };
 
@@ -170,7 +174,9 @@ export default function ScheduledScansPage() {
         setScheduledScans(prev => prev.filter(scan => scan._id !== scanId));
       }
     } catch (error) {
-      console.error('Error deleting scheduled scan:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error deleting scheduled scan:', error);
+      }
     }
   };
 

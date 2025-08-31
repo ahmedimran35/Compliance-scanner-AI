@@ -49,7 +49,7 @@ export default function SignInPage() {
             {/* Brand Text */}
             <div className="text-center mb-12">
               <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
-                ComplianceScanner AI
+                WebShield AI
               </h1>
               <p className="text-xl text-gray-300 max-w-lg leading-relaxed">
                 Advanced AI-powered compliance scanning for modern businesses. 

@@ -141,7 +141,7 @@ export default function DonationPage() {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            Support ComplianceScanner AI
+            Support WebShield AI
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Your support means the world to us! Every contribution helps us continue building the most advanced compliance scanning platform and keeping it free for everyone. Thank you for being part of our journey! 💙

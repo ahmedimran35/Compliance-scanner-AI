@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Suppress development warnings in production
+  reactStrictMode: true,
+  swcMinify: true,
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -29,11 +32,23 @@ const nextConfig = {
       },
     };
 
-    // Optimize for production
-    if (!dev && !isServer) {
-      config.optimization.minimize = true;
-      config.optimization.minimizer = config.optimization.minimizer || [];
-    }
+      // Optimize for production
+  if (!dev && !isServer) {
+    config.optimization.minimize = true;
+    config.optimization.minimizer = config.optimization.minimizer || [];
+    
+    // Suppress console logs in production
+    config.optimization.minimizer.push(
+      new (require('terser-webpack-plugin'))({
+        terserOptions: {
+          compress: {
+            drop_console: true, // Remove console.log statements
+            drop_debugger: true, // Remove debugger statements
+          },
+        },
+      })
+    );
+  }
 
     return config;
   },

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Star, Zap, Crown, Heart, Gift } from 'lucide-react';
+import { Check, X, Star, Zap, Crown, Heart, Gift, Shield, Globe, Users } from 'lucide-react';
 import Button from '../ui/Button';
 
 const supportTiers = [
@@ -89,7 +89,8 @@ const Pricing = () => {
           </h2>
           
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Our mission is to make compliance scanning accessible to everyone. Support us to keep this project free and help us improve.
+            Our mission is to democratize cybersecurity and make enterprise-grade security tools accessible to everyone. 
+            Support us to keep this project free and help us protect the entire web.
           </p>
         </motion.div>
 
@@ -199,34 +200,34 @@ const Pricing = () => {
               </div>
             </div>
             <h3 className="text-3xl font-bold text-slate-900 mb-6">
-              Our Mission
+              Our Mission & Why It's Free
             </h3>
             <p className="text-lg text-slate-700 max-w-3xl mx-auto leading-relaxed mb-8">
-              We believe that compliance scanning should be accessible to everyone, regardless of budget. 
-              Our tool is completely free and will always remain free. Your support helps us maintain 
-              and improve this service for the entire community.
+              We believe that security and compliance tools should be accessible to everyone, not just enterprises with big budgets. 
+              Our comprehensive suite is completely free and will always remain free. Your support helps us maintain 
+              the infrastructure, add new features, and protect the entire web community.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="w-6 h-6 text-green-600" />
+                  <Shield className="w-6 h-6 text-green-600" />
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-2">Keep It Free</h4>
-                <p className="text-slate-600 text-sm">Help us maintain the infrastructure and keep the service free for everyone.</p>
+                <h4 className="font-semibold text-slate-900 mb-2">Democratize Security</h4>
+                <p className="text-slate-600 text-sm">Make enterprise-grade security tools available to everyone, regardless of budget.</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-6 h-6 text-blue-600" />
+                  <Globe className="w-6 h-6 text-blue-600" />
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-2">New Features</h4>
-                <p className="text-slate-600 text-sm">Support development of new features and improvements.</p>
+                <h4 className="font-semibold text-slate-900 mb-2">Protect the Web</h4>
+                <p className="text-slate-600 text-sm">Help secure websites globally by providing free, accessible security tools.</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Star className="w-6 h-6 text-purple-600" />
+                  <Users className="w-6 h-6 text-purple-600" />
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-2">Community</h4>
-                <p className="text-slate-600 text-sm">Join our community of supporters and get exclusive updates.</p>
+                <h4 className="font-semibold text-slate-900 mb-2">Community Driven</h4>
+                <p className="text-slate-600 text-sm">Built by the community, for the community. Your support keeps it free.</p>
               </div>
             </div>
           </div>
@@ -247,19 +248,19 @@ const Pricing = () => {
             <div className="grid md:grid-cols-2 gap-8 text-left">
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Is it really free forever?</h4>
-                <p className="text-slate-600">Yes, absolutely! All features are completely free and will always remain free. No hidden costs, no limitations.</p>
+                <p className="text-slate-600">Yes, absolutely! All WebShield AI features including the Security Engine are completely free and will always remain free. No hidden costs, no limitations.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Why should I become a supporter?</h4>
-                <p className="text-slate-600">Supporting helps us maintain the service, add new features, and keep it free for everyone. You also get some nice perks!</p>
+                <p className="text-slate-600">Supporting helps us maintain the infrastructure, add new security tools, and keep everything free for everyone. You also get exclusive perks!</p>
               </div>
               <div>
-                <h4 className="font-semibold text-slate-900 mb-2">What compliance standards do you support?</h4>
-                <p className="text-slate-600">We support 50+ standards including WCAG, GDPR, HIPAA, SOX, and more. All standards are available in the free version.</p>
+                <h4 className="font-semibold text-slate-900 mb-2">What security tools are available?</h4>
+                <p className="text-slate-600">We offer 12+ security tools including Port Scanner, SSL Checker, DNS Analyzer, and more coming soon. All tools provide real results, no simulations.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Can I use this for commercial projects?</h4>
-                <p className="text-slate-600">Yes! You can use our tool for any project, personal or commercial, without any restrictions.</p>
+                <p className="text-slate-600">Yes! You can use WebShield AI's compliance scanner and security tools for any project, personal or commercial, without any restrictions.</p>
               </div>
             </div>
           </div>

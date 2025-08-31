@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center mb-4">
               <Shield className="w-8 h-8 text-primary-400 mr-3" />
-              <span className="text-2xl font-bold">ComplianceScanner AI</span>
+              <span className="text-2xl font-bold">WebShield AI</span>
             </div>
             <p className="text-neutral-300 mb-6 max-w-md">
               AI-powered website compliance scanner that helps businesses stay compliant with accessibility, security, and regulatory requirements.
@@ -55,7 +55,7 @@ const Footer = () => {
         <div className="border-t border-neutral-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-neutral-400 text-sm mb-4 md:mb-0">
-              © 2024 ComplianceScanner AI. All rights reserved.
+              © 2024 WebShield AI. All rights reserved.
             </p>
             <div className="flex flex-wrap gap-6 text-sm">
               <a href="#" className="text-neutral-400 hover:text-white transition-colors">Privacy Policy</a>

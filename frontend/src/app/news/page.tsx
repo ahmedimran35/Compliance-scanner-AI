@@ -31,7 +31,9 @@ export default function NewsPage() {
   // Handle authentication redirect
   React.useEffect(() => {
     if (isLoaded && !user) {
-      console.log('User not authenticated, redirecting to sign-in');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User not authenticated, redirecting to sign-in');
+      }
       router.replace('/sign-in');
     }
   }, [isLoaded, user, router]);
@@ -51,7 +53,9 @@ export default function NewsPage() {
         
         if (data.success && data.news && data.news.length > 0) {
           setNews(data.news);
-          console.log('✅ Real-time news fetched successfully:', data.count, 'articles');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Real-time news fetched successfully:', data.count, 'articles');
+          }
         } else {
           // Use fallback data if API fails
           const fallbackNews: NewsItem[] = [
@@ -99,11 +103,15 @@ export default function NewsPage() {
             }
           ];
           setNews(fallbackNews);
-          console.log('⚠️ Using fallback news data');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('⚠️ Using fallback news data');
+          }
         }
         
       } catch (error) {
-        console.error('❌ Error fetching news:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Error fetching news:', error);
+        }
         setError('Failed to load news. Please try again later.');
         
         // Fallback to mock data with current timestamps
@@ -267,7 +275,7 @@ export default function NewsPage() {
               <Shield className="w-8 h-8 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">ComplianceScanner AI</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">WebShield AI</h1>
           <div className="flex items-center justify-center space-x-2 text-slate-600">
             <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <span>Loading...</span>
@@ -341,12 +349,16 @@ export default function NewsPage() {
                     const data = await response.json();
                     if (data.success && data.news && data.news.length > 0) {
                       setNews(data.news);
-                      console.log('✅ News refreshed successfully:', data.count, 'articles');
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log('✅ News refreshed successfully:', data.count, 'articles');
+                      }
                     } else {
                       setError('No fresh news found. Please try again later.');
                     }
                   } catch (error) {
-                    console.error('❌ Error refreshing news:', error);
+                    if (process.env.NODE_ENV === 'development') {
+                      console.error('❌ Error refreshing news:', error);
+                    }
                     setError('Failed to refresh news. Please try again.');
                   } finally {
                     setLoading(false);

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Zap, CheckCircle, ArrowRight, Play, Star, Heart } from 'lucide-react';
+import { Shield, Zap, CheckCircle, ArrowRight, Play, Star, Heart, Globe, Lock, Server, Brain, Users, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 
 const Hero = () => {
@@ -82,9 +82,9 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8"
           >
-            <Heart className="w-4 h-4 text-red-400 mr-2 fill-current" />
+            <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
             <span className="text-sm font-medium text-white">
-              Free & Open Source - Powered by Community Support
+              WebShield AI - Complete Security Suite - 100% Free
             </span>
           </motion.div>
           
@@ -95,9 +95,9 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
           >
-            AI-Powered
+            Complete
             <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Compliance Scanner
+              Security Suite
             </span>
           </motion.h1>
           
@@ -106,11 +106,31 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-xl md:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed"
           >
-            Scan, analyze, and stay compliant — completely free. 
-            <span className="text-white font-semibold"> AI-powered website compliance scanner</span> for accessibility, security, and regulatory requirements.
+            <span className="text-white font-semibold">WebShield AI</span> — 
+            The ultimate free toolkit for website compliance, security scanning, and vulnerability assessment.
           </motion.p>
+          
+          {/* Feature highlights */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 max-w-5xl mx-auto"
+          >
+            {[
+              { icon: Shield, text: 'AI Compliance Scanner', color: 'text-blue-400' },
+              { icon: Server, text: 'Security Engine Tools', color: 'text-green-400' },
+              { icon: Brain, text: 'Real-time Analysis', color: 'text-purple-400' },
+              { icon: Users, text: 'Team Collaboration', color: 'text-orange-400' }
+            ].map((feature, index) => (
+              <div key={index} className="flex items-center justify-center space-x-2 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                <feature.icon className={`w-5 h-5 ${feature.color}`} />
+                <span className="text-sm text-white font-medium">{feature.text}</span>
+              </div>
+            ))}
+          </motion.div>
           
           {/* CTA Buttons */}
           <motion.div
@@ -124,7 +144,7 @@ const Hero = () => {
               className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-2xl shadow-blue-500/25"
             >
               <Zap className="w-5 h-5 mr-2" />
-              Get Started Free
+              Start Scanning Free
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             
@@ -133,8 +153,8 @@ const Hero = () => {
               size="lg" 
               className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
             >
-              <Heart className="w-4 h-4 mr-2" />
-              Support Our Mission
+              <Play className="w-4 h-4 mr-2" />
+              Watch Demo
             </Button>
           </motion.div>
           
@@ -157,6 +177,10 @@ const Hero = () => {
               <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
               <span>Community Supported</span>
             </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
+              <span>Real Security Tools</span>
+            </div>
           </motion.div>
         </motion.div>
 
@@ -165,14 +189,18 @@ const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
+          className="mt-20 grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto"
         >
           {[
-            { number: '99.9%', label: 'Accuracy Rate' },
-            { number: '< 30s', label: 'Scan Time' },
-            { number: '50+', label: 'Compliance Standards' }
+            { number: '99.9%', label: 'Accuracy Rate', icon: Brain },
+            { number: '< 30s', label: 'Scan Time', icon: Zap },
+            { number: '12+', label: 'Security Tools', icon: Shield },
+            { number: '50+', label: 'Compliance Standards', icon: Globe }
           ].map((stat, index) => (
             <div key={index} className="text-center">
+              <div className="flex items-center justify-center mb-3">
+                <stat.icon className="w-8 h-8 text-blue-400 mr-2" />
+              </div>
               <div className="text-3xl md:text-4xl font-bold text-white mb-2">
                 {stat.number}
               </div>

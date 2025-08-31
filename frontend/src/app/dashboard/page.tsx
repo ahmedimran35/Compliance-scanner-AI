@@ -95,7 +95,9 @@ export default function DashboardPage() {
   // Handle authentication redirect
   React.useEffect(() => {
     if (isLoaded && !user) {
-      console.log('User not authenticated, redirecting to sign-in');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User not authenticated, redirecting to sign-in');
+      }
       router.replace('/sign-in');
     }
   }, [isLoaded, user, router]);
@@ -103,7 +105,9 @@ export default function DashboardPage() {
   // Fetch dashboard data - optimized
   const fetchDashboardData = React.useCallback(async (isBackgroundRefresh = false) => {
     if (!getToken) {
-      console.log('🔑 No token available for dashboard data');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔑 No token available for dashboard data');
+      }
       return;
     }
 
@@ -117,7 +121,9 @@ export default function DashboardPage() {
       const baseUrl = getApiUrl();
       const token = await getToken();
 
-      console.log('📊 Fetching dashboard data...', isBackgroundRefresh ? '(background)' : '');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📊 Fetching dashboard data...', isBackgroundRefresh ? '(background)' : '');
+      }
 
       // Fetch all data in parallel for better performance - get more scans for better stats
       const [projectsResponse, scansResponse, scheduledResponse, monthlyResponse, allScansResponse] = await Promise.all([
@@ -165,7 +171,7 @@ export default function DashboardPage() {
       const allCompletedScans = allScans.filter((s: any) => s.status === 'completed');
       const allFailedScans = allScans.filter((s: any) => s.status === 'failed');
       
-      if (!isBackgroundRefresh) {
+      if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
         console.log('📊 Raw scan data sample:', allScans.slice(0, 2));
         console.log('📊 Total scans found:', allScans.length);
         console.log('📊 Completed scans:', allCompletedScans.length);
@@ -203,25 +209,25 @@ export default function DashboardPage() {
         }
         if (score !== null && score >= 0 && score <= 100 && score !== 100) {
           scores.push(score);
-          if (!isBackgroundRefresh) {
-            console.log('📊 Found valid score:', score, 'from scan:', scan._id);
-          }
+                  if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
+          console.log('📊 Found valid score:', score, 'from scan:', scan._id);
+        }
         } else if (score === 100) {
-          if (!isBackgroundRefresh) {
+          if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
             console.log('⚠️ Skipping default 100% score from scan:', scan._id);
           }
         }
       }
 
       const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-      if (!isBackgroundRefresh) {
+      if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
         console.log('📊 Compliance scores found:', scores.length, 'Average:', averageScore);
       }
 
       let finalComplianceScore = averageScore;
       if (scores.length === 0) {
         finalComplianceScore = 0;
-        if (!isBackgroundRefresh) {
+        if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
           console.log('📊 No real compliance scores found, showing 0');
         }
       }
@@ -257,23 +263,23 @@ export default function DashboardPage() {
         const endTs = getFirstValidTimestamp(scan, candidateEndKeys);
 
         if (startTs === null || endTs === null) {
-          if (!isBackgroundRefresh) {
-            console.log('⚠️ Missing timestamps for scan:', scan?._id, 'start:', startTs, 'end:', endTs);
-          }
+                  if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Missing timestamps for scan:', scan?._id, 'start:', startTs, 'end:', endTs);
+        }
           continue;
         }
 
         const durationMs = endTs - startTs;
         if (!Number.isFinite(durationMs) || durationMs <= 0) {
-          if (!isBackgroundRefresh) {
-            console.log('⚠️ Invalid duration for scan:', scan?._id, 'durationMs:', durationMs);
-          }
+                  if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Invalid duration for scan:', scan?._id, 'durationMs:', durationMs);
+        }
           continue;
         }
 
         const seconds = Math.max(1, Math.ceil(durationMs / 1000));
         durationSecondsList.push(seconds);
-        if (!isBackgroundRefresh) {
+        if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
           console.log('⏱️ Scan duration (robust):', scan?._id, seconds + 's');
         }
       }
@@ -282,7 +288,7 @@ export default function DashboardPage() {
         ? Math.round(durationSecondsList.reduce((sum, value) => sum + value, 0) / durationSecondsList.length)
         : 0;
 
-      if (!isBackgroundRefresh) {
+      if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
         console.log('⏱️ Average scan time (robust):', avgScanTime + 's from', durationSecondsList.length, 'scans');
       }
 
@@ -300,11 +306,13 @@ export default function DashboardPage() {
         failedScans: allFailedScans.length
       }));
 
-      if (!isBackgroundRefresh) {
+      if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
         console.log('📊 Dashboard data loaded successfully');
       }
     } catch (error) {
-      console.error('❌ Error fetching dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Error fetching dashboard data:', error);
+      }
       if (!isBackgroundRefresh) {
         setError('Failed to load dashboard data');
       }
@@ -330,13 +338,19 @@ export default function DashboardPage() {
 
       if (response.ok) {
         setBackendStatus('online');
-        console.log('✅ Backend is connected');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Backend is connected');
+        }
       } else {
         setBackendStatus('offline');
-        console.log('❌ Backend returned error status');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('❌ Backend returned error status');
+        }
       }
     } catch (error) {
-      console.error('❌ Backend connection failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Backend connection failed:', error);
+      }
       setBackendStatus('offline');
     }
   }, [getToken]);
@@ -344,7 +358,9 @@ export default function DashboardPage() {
   // Initial load - optimized
   React.useEffect(() => {
     if (user) {
-      console.log('👤 User loaded, fetching dashboard data...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('👤 User loaded, fetching dashboard data...');
+      }
       fetchDashboardData();
       checkBackendStatus();
     }
@@ -359,7 +375,9 @@ export default function DashboardPage() {
       if (interval) return;
       interval = setInterval(() => {
         if (document.visibilityState === 'visible') {
-          console.log('🔄 Refreshing dashboard data...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 Refreshing dashboard data...');
+          }
           fetchDashboardData(true); // Pass true for background refresh
         }
       }, 10000); // Reduced to 10 seconds for more responsive updates
@@ -394,7 +412,9 @@ export default function DashboardPage() {
     setShowQuickScan(false);
     
     // Immediately refresh dashboard data for real-time updates (background refresh)
-    console.log('🔄 Quick scan completed, refreshing dashboard...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔄 Quick scan completed, refreshing dashboard...');
+    }
     fetchDashboardData(true); // Use background refresh
     
     // Navigate to scan report if scan ID is provided
@@ -413,7 +433,7 @@ export default function DashboardPage() {
               <Shield className="w-8 h-8 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">ComplianceScanner AI</h1>
+                          <h1 className="text-2xl font-bold text-slate-900 mb-4">WebShield AI</h1>
           <div className="flex items-center justify-center space-x-2 text-slate-600">
             <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <span>Initializing...</span>

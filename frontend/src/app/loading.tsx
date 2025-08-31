@@ -42,7 +42,7 @@ export default function Loading() {
 
           {/* Title with Gradient Text */}
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent mb-6 animate-pulse">
-            ComplianceScanner AI
+            WebShield AI
           </h1>
 
           {/* Loading Bar */}
