@@ -9,7 +9,7 @@ interface AuthenticatedRequest extends express.Request {
 }
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_KEY || 'sk_test_your_stripe_secret_key_here', {
+const stripe = new Stripe(process.env.STRIPE_KEY || '', {
   apiVersion: '2025-07-30.basil',
 });
 

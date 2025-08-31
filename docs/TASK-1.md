@@ -153,7 +153,7 @@ export const authenticateToken = async (req, res, next) => {
 **Frontend** (`.env.local`):
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key
-CLERK_SECRET_KEY=sk_test_your_clerk_secret_key_here
+CLERK_SECRET_KEY=your_clerk_secret_key_here
 ```
 
 **Backend** (`.env`):

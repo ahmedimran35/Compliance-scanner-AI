@@ -122,7 +122,7 @@ router.post('/donate', authenticateToken, async (req: AuthenticatedRequest, res:
     }
 
     // Verify the payment with Stripe
-    const stripe = new (require('stripe'))(process.env.STRIPE_KEY || 'sk_test_your_stripe_secret_key_here');
+    const stripe = new (require('stripe'))(process.env.STRIPE_KEY || '');
     
     try {
       const session = await stripe.checkout.sessions.retrieve(sessionId);

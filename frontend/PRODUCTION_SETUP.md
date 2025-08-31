@@ -7,7 +7,7 @@ Create a `.env.production` file in the frontend directory with the following var
 ```bash
 # Clerk Authentication (Production Keys)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_production_publishable_key_here
-CLERK_SECRET_KEY=sk_test_your_production_secret_key_here
+CLERK_SECRET_KEY=your_production_secret_key_here
 
 # Backend API URL (Production)
 NEXT_PUBLIC_API_URL=https://your-production-backend.com
