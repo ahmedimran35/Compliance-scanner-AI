@@ -16,10 +16,10 @@ const features = [
   {
     icon: Server,
     title: 'Security Engine Suite',
-    description: '12+ free security tools for comprehensive vulnerability assessment, port scanning, SSL analysis, and DNS security.',
+    description: '5+ free security tools for comprehensive vulnerability assessment, port scanning, SSL analysis, DNS security, password analysis, and hash identification.',
     color: 'secondary',
     gradient: 'from-green-500 to-emerald-500',
-    features: ['Port Scanner', 'SSL Certificate Checker', 'DNS Analyzer', 'More Tools Coming']
+    features: ['Port Scanner', 'SSL Certificate Checker', 'DNS Analyzer', 'Password Strength Analyzer', 'Hash Identifier & Analyzer']
   },
   {
     icon: Zap,
@@ -59,13 +59,14 @@ const securityTools = [
   { icon: Server, name: 'Port Scanner', description: 'Scan open ports and services', status: 'Active' },
   { icon: Lock, name: 'SSL Checker', description: 'Analyze SSL certificates', status: 'Active' },
   { icon: Globe, name: 'DNS Analyzer', description: 'Comprehensive DNS analysis', status: 'Active' },
+  { icon: Lock, name: 'Password Strength Analyzer', description: 'Analyze password security', status: 'Active' },
+  { icon: Hash, name: 'Hash Identifier & Analyzer', description: 'Identify hash types and security', status: 'Active' },
   { icon: Code, name: 'Header Analyzer', description: 'HTTP security headers', status: 'Coming Soon' },
   { icon: Target, name: 'Subdomain Finder', description: 'Discover subdomains', status: 'Coming Soon' },
   { icon: FileText, name: 'WHOIS Lookup', description: 'Domain registration info', status: 'Coming Soon' },
   { icon: FileText, name: 'Robots Analyzer', description: 'Robots.txt analysis', status: 'Coming Soon' },
   { icon: Mail, name: 'Email Validator', description: 'Email validation & security', status: 'Coming Soon' },
   { icon: MapPin, name: 'IP Geolocation', description: 'IP location & threat intel', status: 'Coming Soon' },
-  { icon: Hash, name: 'Hash Analyzer', description: 'Hash identification', status: 'Coming Soon' },
   { icon: Link, name: 'URL Analyzer', description: 'Phishing & threat detection', status: 'Coming Soon' },
   { icon: File, name: 'File Analyzer', description: 'Malware detection', status: 'Coming Soon' }
 ];
