@@ -118,22 +118,20 @@
 
 ## 💰 Pricing
 
-### Free Plan
+### Professional Plan
 - ✅ Unlimited projects
 - ✅ Unlimited URLs
 - ✅ Unlimited scans
 - ✅ All 12+ security tools
 - ✅ AI-powered analysis
 - ✅ Real-time monitoring
-- ✅ Community support
-
-### Enterprise Plan
-- ✅ Everything in Free Plan
 - ✅ Priority support
 - ✅ Advanced analytics
 - ✅ Custom integrations
 - ✅ SLA guarantees
 - ✅ Dedicated account manager
+
+*Contact us for custom enterprise solutions and volume pricing.*
 
 ## 🛠️ Tech Stack
 
