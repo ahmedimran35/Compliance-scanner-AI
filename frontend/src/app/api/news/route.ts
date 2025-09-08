@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    console.log('🔄 Starting news fetch from Google News...');
     
     // Use gnews on the server side
     const gnews = require('gnews');
@@ -23,12 +22,10 @@ export async function GET() {
       'compliance automation'
     ];
     
-    console.log(`📰 Fetching news for ${searchQueries.length} queries...`);
     
     // Fetch news for each query with more recent focus
     const newsPromises = searchQueries.map(async (query: string) => {
       try {
-        console.log(`🔍 Searching for: ${query}`);
         // Get more articles per query and focus on recent news
         const articles = await gnews.search(query, { 
           n: 5, 
@@ -36,7 +33,6 @@ export async function GET() {
           country: 'us',
           period: '1d' // Focus on last 24 hours
         });
-        console.log(`✅ Found ${articles.length} articles for: ${query}`);
         return articles.map((article: any) => ({
           title: article.title,
           link: article.link,
@@ -55,12 +51,10 @@ export async function GET() {
     
     // Combine and deduplicate articles
     const allArticles = results.flat();
-    console.log(`📊 Total articles found: ${allArticles.length}`);
     
     const uniqueArticles = allArticles.filter((article: any, index: number, self: any[]) => 
       index === self.findIndex((a: any) => a.link === article.link)
     );
-    console.log(`🔗 Unique articles after deduplication: ${uniqueArticles.length}`);
     
     // Sort by date (most recent first) and filter out very old articles
     const now = new Date();
@@ -81,7 +75,6 @@ export async function GET() {
         return dateB.getTime() - dateA.getTime();
       });
     
-    console.log(`📅 Recent articles (last week): ${recentArticles.length}`);
     
     // Transform and limit to 25 articles (more for pagination testing)
     const transformedNews = recentArticles
@@ -94,12 +87,10 @@ export async function GET() {
         description: article.description
       }));
     
-    console.log(`🎯 Final news count: ${transformedNews.length}`);
     
     // If we don't have enough recent articles, try getting some from headlines
     if (transformedNews.length < 8) {
       try {
-        console.log('📰 Fetching additional headlines...');
         const headlines = await gnews.headlines({ 
           n: 10, 
           language: 'en',
@@ -131,7 +122,6 @@ export async function GET() {
           .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
           .slice(0, 15);
         
-        console.log(`🎯 Final news count with headlines: ${finalNews.length}`);
         
         return NextResponse.json({ 
           success: true, 
@@ -198,7 +188,6 @@ export async function GET() {
       }
     ];
     
-    console.log('⚠️ Using fallback news data due to error');
     
     return NextResponse.json({ 
       success: false, 

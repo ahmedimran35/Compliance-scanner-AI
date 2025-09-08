@@ -1,0 +1,493 @@
+[
+  {
+    "id": "TC001",
+    "title": "AI-Powered Compliance Scanner - Accuracy and Real-time Analysis",
+    "description": "Verify that the AI-Powered Compliance Scanner performs automated compliance scanning with 99.9% accuracy for WCAG 2.1, GDPR, and HIPAA standards, providing real-time compliance scoring and instant analysis results.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Compliance Scanner interface on the dashboard."
+      },
+      {
+        "type": "action",
+        "description": "Upload or link a test website designed with known compliance issues for WCAG 2.1, GDPR, and HIPAA."
+      },
+      {
+        "type": "action",
+        "description": "Trigger an immediate compliance scan."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the scan completes without errors and displays a compliance score."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that detected compliance issues match the known issues with an accuracy exceeding 99.9%."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure real-time analysis updates dynamically during scanning."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "AI-Powered Compliance Scanner - Authentication Handling",
+    "description": "Ensure that the compliance scanner handles authentication correctly, avoiding 400 errors and deprecated Props warnings and enforcing role-based access.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to use the compliance scanner features as an unauthenticated user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied or limited as per design without causing 400 errors."
+      },
+      {
+        "type": "action",
+        "description": "Log in with a user role permitted to run scans."
+      },
+      {
+        "type": "action",
+        "description": "Run a compliance scan and monitor network responses for errors or deprecated props."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no 400 errors occur, all properties are up-to-date, and results are returned successfully."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Security Engine Suite Accessibility and Functionality Without Authentication",
+    "description": "Confirm that all 12+ security tools like Port Scanner, SSL Checker, DNS Analyzer, Password Strength Analyzer, and Hash Identifier are accessible and fully functional without requiring user authentication.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Security Engine Suite page without logging in."
+      },
+      {
+        "type": "action",
+        "description": "Select each security tool one by one and perform typical scans or checks using valid inputs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each tool executes successfully and returns expected results."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm no redirect to login or authentication errors are shown."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Authentication with Clerk.js - JWT and Role-Based Access",
+    "description": "Validate secure user authentication flow using Clerk.js with JWT tokens, ensuring proper session management, role-based access enforcement, and absence of authentication errors (e.g., 400 or deprecated props).",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page and sign in with valid user credentials."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful login and receipt of valid JWT token."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access role-restricted pages with the authenticated session."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is granted or denied correctly based on user role."
+      },
+      {
+        "type": "action",
+        "description": "Log out and verify the session is terminated securely."
+      },
+      {
+        "type": "assertion",
+        "description": "Check no residual tokens or session data remain."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Project Management - CRUD Operations and Team Collaboration",
+    "description": "Test the ability to create, read, update, and delete multiple projects (websites), assign team roles with permissions, and verify authentication blocking is handled correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as a user with project management permissions."
+      },
+      {
+        "type": "action",
+        "description": "Create a new project with valid data and assign team members with distinct roles."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the project appears in the projects list with correct details and assigned roles."
+      },
+      {
+        "type": "action",
+        "description": "Update project details and modify team member roles."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updates are saved and reflected in the UI and backend."
+      },
+      {
+        "type": "action",
+        "description": "Delete an existing project."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the project is removed from the list and database."
+      },
+      {
+        "type": "action",
+        "description": "Attempt project management actions without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Check proper authentication blocking with clear user feedback."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Real-time Monitoring - Alerts and Status Tracking",
+    "description": "Verify that continuous website monitoring sends real-time alerts, updates website status on the monitoring dashboard, and handles authentication properly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in and navigate to the Monitoring page."
+      },
+      {
+        "type": "action",
+        "description": "Add websites to monitoring and trigger health status changes artificially."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm alerts are sent immediately and displayed in the notification system."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Monitoring dashboard correctly displays current status and historical health trends."
+      },
+      {
+        "type": "action",
+        "description": "Logout and access the monitoring endpoint."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure authentication blocks access and proper error messages are presented."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Scheduled Scans - Recurring Scan Automation and Customization",
+    "description": "Test scheduled scans functionality including creation, customization of recurrence, execution of scans on time, and proper authentication enforcement without blocking.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in and navigate to Scheduled Scans."
+      },
+      {
+        "type": "action",
+        "description": "Create a new scheduled scan with a customized recurring schedule."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the scheduled scan appears with correct settings."
+      },
+      {
+        "type": "action",
+        "description": "Wait or simulate the scheduled scan execution time."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the scan runs automatically and produces expected results."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access scheduled scan features without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure no blocking errors occur, or proper authentication flows are prompted."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Comprehensive Reports - Compliance Scores and Recommendations Display",
+    "description": "Verify that comprehensive reports correctly present compliance scores, security metrics, and actionable recommendations with no authentication issues or data leakage.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in and perform scans on projects."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the Reports page for each project."
+      },
+      {
+        "type": "assertion",
+        "description": "Check the presence of detailed analysis with accurate compliance scores and security metrics."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recommendations are actionable and clearly presented."
+      },
+      {
+        "type": "action",
+        "description": "Try accessing reports without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure reports cannot be accessed and proper error handling occurs."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "AI Assistant Widget - Availability, Functionality, and Error Handling",
+    "description": "Ensure the AI Assistant Widget is accessible from the homepage, provides relevant user guidance, and handles any internal errors gracefully without disrupting the user experience.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the homepage."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the AI Assistant Widget is visible and interactive."
+      },
+      {
+        "type": "action",
+        "description": "Interact with the widget by asking typical user questions."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm relevant and helpful responses are provided."
+      },
+      {
+        "type": "action",
+        "description": "Simulate backend failures or disconnections for the AI service."
+      },
+      {
+        "type": "assertion",
+        "description": "Check the widget handles errors gracefully, displaying user-friendly error messages without crashing."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Donation System - Ko-fi Integration and Button Functionality",
+    "description": "Test the donation system integration with Ko-fi, verifying that donation buttons function correctly, redirect users as intended, and navigation flows do not break.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Donation page."
+      },
+      {
+        "type": "action",
+        "description": "Click on the Ko-fi donation button."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the user is redirected to the Ko-fi donation page without errors."
+      },
+      {
+        "type": "action",
+        "description": "Test navigation back to the platform after donation interaction."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure smooth navigation and no broken links."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Loading and Error Handling - UI States and Clerk.js Timeouts",
+    "description": "Validate comprehensive UI loading states, error boundaries including 404 pages, global errors, authentication timeouts from Clerk.js, and user feedback mechanisms function correctly.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger data loading in various components like Dashboard, Reports, and Monitoring."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify loading indicators display appropriately."
+      },
+      {
+        "type": "action",
+        "description": "Simulate server errors and non-existent routes to trigger error screens."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm error boundaries display and provide meaningful messages to the user."
+      },
+      {
+        "type": "action",
+        "description": "Simulate Clerk.js authentication timeout scenarios."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that the system prompts re-authentication and handles session expiry smoothly."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Modal System - Reusability and Authentication Blocking Prevention",
+    "description": "Verify all modals for project, scan, and website management are reusable, responsive, and do not cause authentication blocking or UI inconsistencies.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger each modal type: CreateProjectModal, EditProjectModal, DeleteProjectModal, AddWebsiteModal, EditWebsiteModal, DeleteWebsiteModal, ScanOptionsModal, and ScheduleScanModal."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm modals open and close correctly with smooth animations and responsivity."
+      },
+      {
+        "type": "assertion",
+        "description": "Interact with modal forms ensuring validation errors are shown appropriately."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to open modals while unauthenticated."
+      },
+      {
+        "type": "assertion",
+        "description": "Check no authentication blocking issues occur; user is redirected or prompted to log in as designed."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Notification System - Real-time Alerts and Authentication Security",
+    "description": "Ensure the real-time notification system delivers user alerts promptly, displays them correctly, and enforces authentication to prevent unauthorized access.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in and perform actions that trigger notifications (e.g., scan completion, monitoring alert)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notifications appear in real-time in the UI."
+      },
+      {
+        "type": "action",
+        "description": "Open notification routes/endpoints without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm access is denied and no notifications are leaked."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Security Middleware - Content Security, Input Validation, and JWT Enforcement",
+    "description": "Test the backend security middleware to ensure it enforces content security policies, CORS, robust input validation, and JWT authentication with proper error handling and no bypasses.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send API requests with invalid or malicious inputs to various endpoints."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify input validation blocks bad requests and returns appropriate error responses."
+      },
+      {
+        "type": "action",
+        "description": "Make API requests without JWT tokens to protected routes."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm request is denied with authentication error."
+      },
+      {
+        "type": "action",
+        "description": "Send requests with expired or malformed JWT tokens."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that requests are denied and session handling behaves correctly."
+      },
+      {
+        "type": "action",
+        "description": "Inspect headers on responses for content security policies and CORS enforcement."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure security headers are present and properly configured."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Performance and Scalability Testing - Load Balancing, Caching, and Database Indexing",
+    "description": "Assess the system's performance and scalability by simulating multiple concurrent users, ensuring caching mechanisms, load balancing, and database indexing handle the load without degradation.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate concurrent logins and usage of key features like project management, scanning, and reporting."
+      },
+      {
+        "type": "assertion",
+        "description": "Monitor response times and throughput to ensure stable and performant behavior."
+      },
+      {
+        "type": "action",
+        "description": "Verify caching mechanisms reduce backend database calls appropriately."
+      },
+      {
+        "type": "assertion",
+        "description": "Check database indexes are used effectively via query performance monitoring."
+      },
+      {
+        "type": "action",
+        "description": "Test load balancing by distributing traffic across instances."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure no single point of failure and consistent user experience."
+      }
+    ]
+  }
+]

@@ -19,13 +19,39 @@ export const authenticateToken = async (
       return res.status(401).json({ error: 'Access token required' });
     }
 
-
-    // For now, let's decode the token without verification to get the user info
-    // This is a temporary solution until we get the proper JWT public key
-    const decoded = jwt.decode(token) as any;
+    // In development, be more lenient with token validation
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    let decoded: any;
+    
+    if (isDevelopment) {
+      // In development, try to decode the token without verification first
+      try {
+        decoded = jwt.decode(token) as any;
+        if (!decoded) {
+          return res.status(401).json({ error: 'Invalid token format' });
+        }
+      } catch (decodeError) {
+        console.warn('Token decode failed in development:', decodeError);
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    } else {
+      // In production, always verify the token
+      const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY;
+      if (!jwtSecret) {
+        return res.status(500).json({ error: 'JWT secret not configured' });
+      }
+      
+      try {
+        decoded = jwt.verify(token, jwtSecret);
+      } catch (verifyError) {
+        console.warn('JWT verification failed:', verifyError);
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    }
     
     if (!decoded || !decoded.sub) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: 'Invalid token payload' });
     }
 
 
@@ -53,18 +79,45 @@ export const authenticateToken = async (
         }
       }
       
-      // If still no email, use a better placeholder
-      if (!email) {
-        email = `user_${decoded.sub}@placeholder.com`;
+      // EMAIL IS MANDATORY - Reject user creation without email
+      // In development, allow placeholder emails
+      if (!email || email.trim() === '') {
+        console.error('❌ User creation rejected: No email provided');
+        return res.status(400).json({ 
+          error: 'Email is required for account creation',
+          message: 'Please provide a valid email address to continue.'
+        });
       }
       
-      console.log('🔍 Token debug info:', {
-        hasEmail: !!decoded.email,
-        hasEmailAddresses: !!decoded.email_addresses,
-        emailAddressesType: typeof decoded.email_addresses,
-        primaryEmailId: decoded.primary_email_address_id,
-        emailAddressesKeys: decoded.email_addresses ? Object.keys(decoded.email_addresses) : null
-      });
+      // In production, reject placeholder emails
+      if (process.env.NODE_ENV === 'production' && email.includes('@placeholder.com')) {
+        console.error('❌ User creation rejected: Placeholder email not allowed in production');
+        return res.status(400).json({ 
+          error: 'Invalid email address',
+          message: 'Please provide a valid email address to continue.'
+        });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        console.error('❌ User creation rejected: Invalid email format:', email);
+        return res.status(400).json({ 
+          error: 'Invalid email format',
+          message: 'Please provide a valid email address.'
+        });
+      }
+      
+      // Only log debug info in development
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔍 Token debug info:', {
+          hasEmail: !!decoded.email,
+          hasEmailAddresses: !!decoded.email_addresses,
+          emailAddressesType: typeof decoded.email_addresses,
+          primaryEmailId: decoded.primary_email_address_id,
+          emailAddressesKeys: decoded.email_addresses ? Object.keys(decoded.email_addresses) : null
+        });
+      }
       
       // Create new user with unlimited access (no tier restrictions)
       user = new User({

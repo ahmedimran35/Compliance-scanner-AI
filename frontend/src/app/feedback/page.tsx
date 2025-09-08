@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Star, MessageSquare, Bug, Lightbulb, Heart, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { useUser } from '@clerk/nextjs';
+import { Send, Star, MessageSquare, Bug, Lightbulb, Heart, CheckCircle, AlertCircle } from 'lucide-react';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { getApiUrl } from '@/config/api';
 import { useRouter } from 'next/navigation';
+import Layout from '@/components/Layout';
 
 interface FeedbackForm {
   type: 'general' | 'bug' | 'feature' | 'improvement';
@@ -18,6 +19,7 @@ interface FeedbackForm {
 
 export default function FeedbackPage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState<FeedbackForm>({
     type: 'general',
@@ -25,7 +27,7 @@ export default function FeedbackPage() {
     title: '',
     description: '',
     email: user?.emailAddresses[0]?.emailAddress || '',
-    category: 'general'
+    category: 'General'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -61,9 +63,33 @@ export default function FeedbackPage() {
     setSubmitStatus('idle');
 
     try {
-      // Here you would typically send the feedback to your backend
-      // For now, we'll simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const apiUrl = getApiUrl();
+      const endpoint = user ? '/api/feedback/authenticated' : '/api/feedback';
+      
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user && { 'Authorization': `Bearer ${await getToken()}` })
+        },
+        body: JSON.stringify({
+          type: formData.type,
+          rating: formData.rating,
+          title: formData.title,
+          description: formData.description,
+          email: formData.email,
+          category: formData.category
+        })
+      });
+
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Response error:', errorText);
+        throw new Error(`Failed to submit feedback: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
       
       setSubmitStatus('success');
       setFormData({
@@ -72,12 +98,13 @@ export default function FeedbackPage() {
         title: '',
         description: '',
         email: user?.emailAddresses[0]?.emailAddress || '',
-        category: 'general'
+        category: 'General'
       });
       
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitStatus('idle'), 5000);
     } catch (error) {
+      console.error('❌ Error submitting feedback:', error);
       setSubmitStatus('error');
       setTimeout(() => setSubmitStatus('idle'), 5000);
     } finally {
@@ -95,24 +122,9 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Return Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="mb-6"
-        >
-          <motion.button
-            onClick={() => router.back()}
-            whileHover={{ scale: 1.05, x: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-white/80 backdrop-blur-xl rounded-xl border border-gray-200/50 text-gray-700 hover:text-gray-900 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Back</span>
-          </motion.button>
-        </motion.div>
 
         {/* Header */}
         <motion.div
@@ -127,9 +139,11 @@ export default function FeedbackPage() {
             We'd Love Your Feedback
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Help us improve WebShield AI by sharing your thoughts, reporting bugs, or suggesting new features.
+            Help us improve Scan More by sharing your thoughts, reporting bugs, or suggesting new features.
           </p>
         </motion.div>
+
+
 
         {/* Success/Error Messages */}
         <AnimatePresence>
@@ -243,7 +257,7 @@ export default function FeedbackPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
               >
                 {categories.map((category) => (
-                  <option key={category} value={category.toLowerCase()}>
+                  <option key={category} value={category}>
                     {category}
                   </option>
                 ))}
@@ -285,29 +299,30 @@ export default function FeedbackPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
+                Email Address *
               </label>
               <input
                 type="email"
                 id="email"
+                required
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="your@email.com (optional, for follow-up)"
+                placeholder="your@email.com (required for follow-up)"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
               />
               <p className="text-xs text-gray-500 mt-1">
-                We'll only use this to follow up on your feedback if needed.
+                We'll use this to follow up on your feedback and send you updates.
               </p>
             </div>
 
             {/* Submit Button */}
             <motion.button
               type="submit"
-              disabled={isSubmitting || !formData.title || !formData.description}
+              disabled={isSubmitting || !formData.title || !formData.description || !formData.email}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center space-x-2 ${
-                isSubmitting || !formData.title || !formData.description
+                isSubmitting || !formData.title || !formData.description || !formData.email
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
               }`}
@@ -361,5 +376,6 @@ export default function FeedbackPage() {
         </motion.div>
       </div>
     </div>
+    </Layout>
   );
 }

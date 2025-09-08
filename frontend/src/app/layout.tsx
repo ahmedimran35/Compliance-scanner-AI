@@ -6,7 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'WebShield AI - Complete Security Suite',
+  title: 'Scan More - Complete Security Suite',
   description: 'Scan, analyze, and stay compliant — instantly. AI-powered website compliance scanner for accessibility, security, and regulatory requirements.',
   keywords: 'compliance, scanner, AI, accessibility, security, website, audit',
 }
@@ -20,7 +20,7 @@ export default function RootLayout({
   const isProduction = process.env.NODE_ENV === 'production'
   
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href={apiHost} crossOrigin="anonymous" />
         <link rel="dns-prefetch" href={apiHost} />
@@ -33,6 +33,8 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning={true}>
         <ClerkProvider
           publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
         >
           {children}
         </ClerkProvider>

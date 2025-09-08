@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Search, Eye, Target, Zap, AlertTriangle, CheckCircle, Clock, Globe, Lock, Unlock, Server, Database, Code, Wifi, ShieldCheck, Bug, Virus, Key, Fingerprint, Scan, Activity, BarChart3, Download, RefreshCw, ExternalLink, Info, Star, Crown, Sparkles, FileText, Mail, MapPin, Hash, Link, File, X, Brain } from 'lucide-react';
+import { Shield, Search, Eye, Target, Zap, AlertTriangle, CheckCircle, Clock, Globe, Lock, Unlock, Server, Database, Code, Wifi, ShieldCheck, Bug, Key, Fingerprint, Scan, Activity, BarChart3, Download, RefreshCw, ExternalLink, Info, Star, Crown, Sparkles, FileText, Mail, MapPin, Hash, Link, File, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import Layout from '@/components/Layout';
 
 interface ScanResult {
@@ -29,6 +30,7 @@ interface SecurityTool {
 
 export default function SecurityEnginePage() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [activeTab, setActiveTab] = React.useState('all');
   const [searchTerm, setSearchTerm] = React.useState('');
   const [scanResults, setScanResults] = React.useState<ScanResult[]>([]);
@@ -39,6 +41,34 @@ export default function SecurityEnginePage() {
   const [scanTarget, setScanTarget] = React.useState('');
   const [showResultsModal, setShowResultsModal] = React.useState(false);
   const [currentResult, setCurrentResult] = React.useState<ScanResult | null>(null);
+
+  // Authentication check
+  React.useEffect(() => {
+    if (isLoaded && !user) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, user, router]);
+
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <span className="text-slate-600 text-lg font-medium">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated
+  if (isLoaded && !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-slate-600 text-lg font-medium">Redirecting to sign in...</div>
+      </div>
+    );
+  }
 
   const securityTools: SecurityTool[] = [
     {
@@ -397,8 +427,8 @@ export default function SecurityEnginePage() {
       if (openPorts.includes(22) && openPorts.includes(23)) vulnerabilities.push('Both SSH and Telnet open - disable Telnet');
       if (!openPorts.includes(443) && openPorts.includes(80)) vulnerabilities.push('HTTP only - enable HTTPS');
       
-      results.vulnerabilities = vulnerabilities;
-      results.securityScore = Math.max(0, 100 - (vulnerabilities.length * 20));
+      (results as any).vulnerabilities = vulnerabilities;
+      (results as any).securityScore = Math.max(0, 100 - (vulnerabilities.length * 20));
       
       return results;
     } catch (error) {
@@ -521,7 +551,7 @@ export default function SecurityEnginePage() {
       if (results.grade === 'F') securityScore -= 30;
       if (results.grade === 'T') securityScore -= 25;
       
-      results.securityScore = Math.max(0, securityScore);
+      (results as any).securityScore = Math.max(0, securityScore);
       
       return results;
     } catch (error) {
@@ -714,7 +744,7 @@ export default function SecurityEnginePage() {
       if (!dmarcRecord) securityScore -= 10;
       if (!dkimRecord) securityScore -= 10;
       
-      results.securityScore = Math.max(0, securityScore);
+      (results as any).securityScore = Math.max(0, securityScore);
       
       return results;
     } catch (error) {
@@ -2357,66 +2387,293 @@ export default function SecurityEnginePage() {
 
   return (
     <Layout>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-8">
-        {/* Header */}
+    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-8">
+
+        {/* Enhanced Modern Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10"
+          className="mb-12"
         >
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-3xl flex items-center justify-center shadow-2xl">
+          <div className="bg-gradient-to-r from-slate-900 via-red-900 to-orange-900 rounded-3xl p-8 shadow-2xl border border-red-800/30">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
+              <div className="flex items-center space-x-6">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg"
+                >
                 <Shield className="w-8 h-8 text-white" />
+                </motion.div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-2">Security Engine 🔒</h1>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                      <span className="text-red-200 text-sm font-medium">Security Tools Active</span>
               </div>
+                    <span className="text-red-300 text-sm">•</span>
+                    <span className="text-red-200 text-sm">Real-time scanning</span>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-red-900 via-orange-900 to-yellow-900 bg-clip-text text-transparent mb-4">
-              Security Engine 🔒
-            </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
-              Comprehensive suite of free security scanning tools. No API keys required, real results guaranteed.
-            </p>
-            
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search security tools..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-300 text-lg"
-                />
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <motion.p 
+                      key={securityTools.length}
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      {securityTools.length}
+                    </motion.p>
+                    <p className="text-red-200 text-sm font-medium">Tools</p>
+                  </div>
+                  <div className="text-center">
+                    <motion.p 
+                      key={securityTools.filter(t => t.isFree).length}
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      {securityTools.filter(t => t.isFree).length}
+                    </motion.p>
+                    <p className="text-red-200 text-sm font-medium">Free Tools</p>
+                  </div>
+                  <div className="text-center">
+                    <motion.p 
+                      key="4"
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      4
+                    </motion.p>
+                    <p className="text-red-200 text-sm font-medium">Categories</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Category Tabs */}
+        {/* Premium Stats Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+        >
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="group bg-gradient-to-br from-red-50 to-red-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-red-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Shield className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-red-700">Security Tools</p>
+                <motion.p 
+                  key={securityTools.length}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-red-900"
+                >
+                  {securityTools.length}
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <Zap className="w-4 h-4 text-red-500 mr-1" />
+                <span className="text-red-600 font-medium">Available</span>
+              </div>
+              <div className="w-16 h-2 bg-red-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 0.5, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-red-500 to-orange-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="group bg-gradient-to-br from-blue-50 to-blue-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-blue-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Scan className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-blue-700">Available Tools</p>
+                <motion.p 
+                  key={securityTools.filter(t => t.isFree).length}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-blue-900"
+                >
+                  {securityTools.filter(t => t.isFree).length}
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <Activity className="w-4 h-4 text-blue-500 mr-1" />
+                <span className="text-blue-600 font-medium">Ready to use</span>
+              </div>
+              <div className="w-16 h-2 bg-blue-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "75%" }}
+                  transition={{ delay: 0.7, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="group bg-gradient-to-br from-green-50 to-green-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-green-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <CheckCircle className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-green-700">Scan Types</p>
+                <motion.p 
+                  key={securityTools.filter(t => t.isFree).length}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-green-900"
+                >
+                  {securityTools.filter(t => t.isFree).length}
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <ShieldCheck className="w-4 h-4 text-green-500 mr-1" />
+                <span className="text-green-600 font-medium">Security checks</span>
+              </div>
+              <div className="w-16 h-2 bg-green-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: scanResults.length > 0 ? `${(scanResults.filter(r => r.status === 'completed').length / scanResults.length) * 100}%` : "0%" }}
+                  transition={{ delay: 0.9, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="group bg-gradient-to-br from-yellow-50 to-yellow-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-yellow-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <AlertTriangle className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-yellow-700">Categories</p>
+                <motion.p 
+                  key="4"
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-yellow-900"
+                >
+                  4
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <Target className="w-4 h-4 text-yellow-500 mr-1" />
+                <span className="text-yellow-600 font-medium">Tool types</span>
+              </div>
+              <div className="w-16 h-2 bg-yellow-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "25%" }}
+                  transition={{ delay: 1.1, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Enhanced Search and Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+          className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-slate-200/50 mb-8"
+        >
+          <div className="flex flex-col gap-6">
+            {/* Enhanced Search Bar */}
+              <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                placeholder="Search security tools, features, or categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md text-lg"
+                />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Enhanced Category Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-8"
         >
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-4">
             {categories.map((category) => {
               const Icon = category.icon;
               return (
                 <motion.button
                   key={category.id}
                   onClick={() => setActiveTab(category.id)}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
+                  className={`group flex items-center space-x-3 px-6 py-4 rounded-2xl font-semibold transition-all duration-300 ${
                     activeTab === category.id
                       ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-xl'
                       : 'bg-white/80 backdrop-blur-xl text-gray-600 hover:bg-white hover:shadow-lg border border-gray-200/50'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                    activeTab === category.id
+                      ? 'bg-white/20'
+                      : 'bg-gray-100 group-hover:bg-gray-200'
+                  }`}>
+                    <Icon className={`w-4 h-4 ${
+                      activeTab === category.id ? 'text-white' : 'text-gray-600'
+                    }`} />
+                  </div>
                   <span>{category.name}</span>
                 </motion.button>
               );
@@ -2424,12 +2681,12 @@ export default function SecurityEnginePage() {
           </div>
         </motion.div>
 
-        {/* Tools Grid */}
+        {/* Enhanced Tools Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
         >
           {filteredTools.map((tool, index) => {
             const Icon = tool.icon;
@@ -2439,39 +2696,46 @@ export default function SecurityEnginePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 * index }}
-                className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-gray-200/50 hover:shadow-2xl transition-all duration-300 group"
+                className="group bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-slate-200/50 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 bg-gradient-to-br from-${tool.color}-500 to-${tool.color}-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                    <Icon className="w-6 h-6 text-white" />
+                <div className="flex items-start justify-between mb-6">
+                  <div className={`w-16 h-16 bg-gradient-to-br from-${tool.color}-500 to-${tool.color}-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300`}>
+                    <Icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex items-center space-x-2">
                     {tool.isFree ? (
-                      <div className="flex items-center space-x-1 bg-gradient-to-r from-green-100 to-emerald-100 px-2 py-1 rounded-full border border-green-200">
-                        <Star className="w-3 h-3 text-green-600" />
-                        <span className="text-xs text-green-700 font-medium">Free</span>
+                      <div className="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-2 rounded-full border border-green-200 shadow-sm">
+                        <Star className="w-4 h-4 text-green-600" />
+                        <span className="text-sm text-green-700 font-semibold">Free</span>
                       </div>
                     ) : (
-                      <div className="flex items-center space-x-1 bg-gradient-to-r from-gray-100 to-slate-100 px-2 py-1 rounded-full border border-gray-200">
-                        <Clock className="w-3 h-3 text-gray-600" />
-                        <span className="text-xs text-gray-700 font-medium">Coming Soon</span>
+                      <div className="flex items-center space-x-2 bg-gradient-to-r from-gray-100 to-slate-100 px-3 py-2 rounded-full border border-gray-200 shadow-sm">
+                        <Clock className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700 font-semibold">Coming Soon</span>
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{tool.name}</h3>
-                <p className="text-gray-600 mb-4">{tool.description}</p>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-red-600 transition-colors duration-300">{tool.name}</h3>
+                <p className="text-slate-600 mb-6 leading-relaxed">{tool.description}</p>
                 
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Features:</h4>
-                  <ul className="space-y-1">
-                    {tool.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center space-x-2 text-sm text-gray-600">
-                        <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-slate-700 mb-3">Key Features:</h4>
+                  <ul className="space-y-2">
+                    {tool.features.slice(0, 3).map((feature, idx) => (
+                      <li key={idx} className="flex items-center space-x-3 text-sm text-slate-600">
+                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="w-3 h-3 text-green-600" />
+                        </div>
                         <span>{feature}</span>
                       </li>
                     ))}
+                    {tool.features.length > 3 && (
+                      <li className="text-xs text-slate-500 ml-8">
+                        +{tool.features.length - 3} more features
+                      </li>
+                    )}
                   </ul>
                 </div>
                 
@@ -2482,23 +2746,27 @@ export default function SecurityEnginePage() {
                       setShowScanModal(true);
                     }}
                     disabled={isScanning}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full py-3 px-4 rounded-2xl font-medium transition-all duration-300 ${
+                    className={`w-full py-4 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
                       isScanning && currentScan === tool.id
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : `bg-gradient-to-r from-${tool.color}-500 to-${tool.color}-600 hover:from-${tool.color}-600 hover:to-${tool.color}-700 text-white shadow-lg hover:shadow-xl`
+                        : `bg-gradient-to-r from-${tool.color}-500 to-${tool.color}-600 hover:from-${tool.color}-600 hover:to-${tool.color}-700 text-white`
                     }`}
                   >
                     {isScanning && currentScan === tool.id ? (
-                      <div className="flex items-center justify-center space-x-2">
-                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      <div className="flex items-center justify-center space-x-3">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                        ></motion.div>
                         <span>Scanning...</span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Scan className="w-4 h-4" />
-                        <span>Start Scan</span>
+                      <div className="flex items-center justify-center space-x-3">
+                        <Scan className="w-5 h-5" />
+                        <span>Start Security Scan</span>
                       </div>
                     )}
                   </motion.button>
@@ -2507,10 +2775,10 @@ export default function SecurityEnginePage() {
                     disabled
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 px-4 rounded-2xl font-medium transition-all duration-300 bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg cursor-not-allowed opacity-60"
+                    className="w-full py-4 px-6 rounded-2xl font-semibold transition-all duration-300 bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg cursor-not-allowed opacity-60"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Clock className="w-4 h-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <Clock className="w-5 h-5" />
                       <span>Coming Soon</span>
                     </div>
                   </motion.button>
@@ -2520,51 +2788,74 @@ export default function SecurityEnginePage() {
           })}
         </motion.div>
 
-                {/* Recent Scans Summary */}
+        {/* Enhanced Recent Scans Summary */}
         {scanResults.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-gray-200/50"
+            className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-slate-200/50"
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Recent Scans</h2>
-              <button
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Recent Security Scans</h2>
+                  <p className="text-slate-600">View and manage your security scan history</p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setScanResults([])}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-300 font-medium"
               >
                 Clear All
-              </button>
+              </motion.button>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               {scanResults.slice(0, 5).map((result) => (
                 <motion.div
                   key={result.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="bg-gray-50/50 rounded-2xl p-4 border border-gray-200/30 hover:bg-gray-100/50 transition-colors cursor-pointer"
+                  className="group bg-slate-50/50 rounded-2xl p-6 border border-slate-200/30 hover:bg-slate-100/50 transition-all duration-300 cursor-pointer hover:shadow-md"
                   onClick={() => {
                     setCurrentResult(result);
                     setShowResultsModal(true);
                   }}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center shadow-lg">
                       {getScanResultIcon(result.status)}
+                      </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-bold text-slate-900 text-lg">
                           {securityTools.find(t => t.id === result.type)?.name || result.type}
                         </h3>
-                        <p className="text-sm text-gray-600">{result.url}</p>
+                        <p className="text-slate-600">{result.url}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          result.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : result.status === 'failed'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {result.status === 'completed' ? 'Completed' : result.status === 'failed' ? 'Failed' : 'Scanning'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500">
                         {new Date(result.timestamp).toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-400">{result.duration}ms</p>
+                      <p className="text-xs text-slate-400">{result.duration}ms</p>
                     </div>
                   </div>
                 </motion.div>
@@ -2572,8 +2863,8 @@ export default function SecurityEnginePage() {
             </div>
             
             {scanResults.length > 5 && (
-              <div className="text-center mt-4">
-                <p className="text-sm text-gray-500">
+              <div className="text-center mt-6">
+                <p className="text-sm text-slate-500">
                   Showing 5 of {scanResults.length} scans. Click on any scan to view details.
                 </p>
               </div>
@@ -2581,7 +2872,7 @@ export default function SecurityEnginePage() {
           </motion.div>
         )}
 
-        {/* Scan Modal */}
+        {/* Enhanced Scan Modal */}
         {showScanModal && selectedTool && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -2594,40 +2885,40 @@ export default function SecurityEnginePage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-gray-200/50 max-w-md w-full"
+              className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-slate-200/50 max-w-lg w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="text-center mb-6">
-                <div className={`w-16 h-16 bg-gradient-to-br from-${selectedTool.color}-500 to-${selectedTool.color}-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                  <selectedTool.icon className="w-8 h-8 text-white" />
+              <div className="text-center mb-8">
+                <div className={`w-20 h-20 bg-gradient-to-br from-${selectedTool.color}-500 to-${selectedTool.color}-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl`}>
+                  <selectedTool.icon className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedTool.name}</h3>
-                <p className="text-gray-600">{selectedTool.description}</p>
+                <h3 className="text-3xl font-bold text-slate-900 mb-3">{selectedTool.name}</h3>
+                <p className="text-slate-600 text-lg leading-relaxed">{selectedTool.description}</p>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Target
+              <div className="mb-8">
+                <label className="block text-lg font-bold text-slate-700 mb-3">
+                  Scan Target
                 </label>
                 <input
                   type="text"
                   value={scanTarget}
                   onChange={(e) => setScanTarget(e.target.value)}
                   placeholder={getPlaceholderForTool(selectedTool.id)}
-                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                  className="w-full px-6 py-4 border-2 border-slate-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md text-lg"
                   autoFocus
                 />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-sm text-slate-500 mt-3">
                   {getHelpTextForTool(selectedTool.id)}
                 </p>
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex space-x-4">
                 <motion.button
                   onClick={() => setShowScanModal(false)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-medium transition-all duration-300"
+                  className="flex-1 py-4 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-semibold transition-all duration-300"
                 >
                   Cancel
                 </motion.button>
@@ -2642,21 +2933,25 @@ export default function SecurityEnginePage() {
                   disabled={!scanTarget.trim() || isScanning}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`flex-1 py-3 px-4 rounded-2xl font-medium transition-all duration-300 ${
+                  className={`flex-1 py-4 px-6 rounded-2xl font-semibold transition-all duration-300 ${
                     !scanTarget.trim() || isScanning
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : `bg-gradient-to-r from-${selectedTool.color}-500 to-${selectedTool.color}-600 hover:from-${selectedTool.color}-600 hover:to-${selectedTool.color}-700 text-white shadow-lg hover:shadow-xl`
                   }`}
                 >
                   {isScanning ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      ></motion.div>
                       <span>Scanning...</span>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center space-x-2">
-                      <Scan className="w-4 h-4" />
-                      <span>Start Scan</span>
+                    <div className="flex items-center justify-center space-x-3">
+                      <Scan className="w-5 h-5" />
+                      <span>Start Security Scan</span>
                     </div>
                   )}
                 </motion.button>
@@ -2665,7 +2960,7 @@ export default function SecurityEnginePage() {
           </motion.div>
         )}
 
-        {/* Results Modal */}
+        {/* Enhanced Results Modal */}
         {showResultsModal && currentResult && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -2678,61 +2973,63 @@ export default function SecurityEnginePage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 max-w-4xl w-full max-h-[90vh] overflow-hidden"
+              className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 max-w-5xl w-full max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200/30 bg-gradient-to-r from-gray-50/50 to-blue-50/50">
-                <div className="flex items-center space-x-4">
+              {/* Enhanced Header */}
+              <div className="flex items-center justify-between p-8 border-b border-slate-200/30 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
+                <div className="flex items-center space-x-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-slate-500 to-slate-600 rounded-2xl flex items-center justify-center shadow-lg">
                   {getScanResultIcon(currentResult.status)}
+                  </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
+                    <h3 className="text-3xl font-bold text-slate-900">
                       {securityTools.find(t => t.id === currentResult.type)?.name || currentResult.type}
                     </h3>
-                    <p className="text-gray-600">{currentResult.url}</p>
+                    <p className="text-slate-600 text-lg">{currentResult.url}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       {new Date(currentResult.timestamp).toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-400">{currentResult.duration}ms</p>
+                    <p className="text-xs text-slate-400">{currentResult.duration}ms</p>
                   </div>
                   <motion.button
                     onClick={() => setShowResultsModal(false)}
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-all duration-300"
+                    className="w-12 h-12 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all duration-300"
                   >
-                    <X className="w-5 h-5 text-gray-600" />
+                    <X className="w-6 h-6 text-slate-600" />
                   </motion.button>
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Enhanced Content */}
+              <div className="p-8 overflow-y-auto max-h-[calc(90vh-160px)]">
                 {currentResult.status === 'completed' ? (
                   renderScanResults(currentResult)
                 ) : (
-                  <div className="bg-red-50/50 rounded-xl p-4 border border-red-200/30">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <AlertTriangle className="w-5 h-5 text-red-500" />
-                      <h4 className="font-semibold text-red-900">Scan Failed</h4>
+                  <div className="bg-red-50/50 rounded-2xl p-6 border border-red-200/30">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <AlertTriangle className="w-6 h-6 text-red-500" />
+                      <h4 className="font-bold text-red-900 text-xl">Scan Failed</h4>
                     </div>
-                    <p className="text-red-700">
+                    <p className="text-red-700 text-lg">
                       {currentResult.results.error}
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="p-4 border-t border-gray-200/30 bg-gradient-to-r from-gray-50/50 to-blue-50/50">
+              {/* Enhanced Footer */}
+              <div className="p-6 border-t border-slate-200/30 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">Status:</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm text-slate-500 font-medium">Status:</span>
+                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
                       currentResult.status === 'completed' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
@@ -2744,7 +3041,7 @@ export default function SecurityEnginePage() {
                     onClick={() => setShowResultsModal(false)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300"
+                    className="px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold transition-all duration-300"
                   >
                     Close
                   </motion.button>

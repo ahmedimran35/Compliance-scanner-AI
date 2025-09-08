@@ -50,7 +50,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
             </div>
             
             <h1 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              WebShield AI
+              Scan More
             </h1>
             
             <LoadingSpinner variant="orbit" color="gradient" size="lg" />
@@ -99,7 +99,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
             </div>
             
             <h1 className={`text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-4`}>
-              WebShield AI
+              Scan More
             </h1>
             
             <LoadingSpinner variant="ripple" color="gradient" size="lg" />

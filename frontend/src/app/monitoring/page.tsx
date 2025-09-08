@@ -218,133 +218,322 @@ export default function MonitoringPage() {
   return (
     <Layout>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Page Header */}
+          {/* Enhanced Modern Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-12"
+            className="mb-12"
           >
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-full border border-green-200/50 mb-6">
-              <Activity className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-700">Real-time Monitoring</span>
+            <div className="bg-gradient-to-r from-slate-900 via-green-900 to-emerald-900 rounded-3xl p-8 shadow-2xl border border-green-800/30">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
+                <div className="flex items-center space-x-6">
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
+                  >
+                    <Activity className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <div>
+                    <h1 className="text-4xl font-bold text-white mb-2">Website Monitoring</h1>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-200 text-sm font-medium">Live Monitoring</span>
+                      </div>
+                      <span className="text-green-300 text-sm">•</span>
+                      <span className="text-green-200 text-sm">Real-time status updates</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <motion.p 
+                        key={stats.onlineWebsites}
+                        initial={{ scale: 1.2, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-3xl font-bold text-white"
+                      >
+                        {stats.onlineWebsites}
+                      </motion.p>
+                      <p className="text-green-200 text-sm font-medium">Online</p>
+                    </div>
+                    <div className="text-center">
+                      <motion.p 
+                        key={stats.totalWebsites}
+                        initial={{ scale: 1.2, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-3xl font-bold text-white"
+                      >
+                        {stats.totalWebsites}
+                      </motion.p>
+                      <p className="text-green-200 text-sm font-medium">Total Sites</p>
+                    </div>
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={fetchWebsites}
+                    disabled={loading}
+                    className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                    <span>{loading ? 'Refreshing...' : 'Refresh Data'}</span>
+                  </motion.button>
+                </div>
+              </div>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-              Website Monitoring
-            </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Monitor your websites in real-time with configurable intervals and instant alerts
-            </p>
           </motion.div>
 
-          {/* Stats Cards */}
+          {/* Enhanced Stats Cards */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12"
           >
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Total Websites</p>
-                  <p className="text-3xl font-bold text-slate-900">{stats.totalWebsites}</p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="group bg-gradient-to-br from-blue-50 to-blue-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-blue-200/50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Globe className="w-7 h-7 text-white" />
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Globe className="w-6 h-6 text-white" />
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-blue-700">Total Websites</p>
+                  <motion.p 
+                    key={stats.totalWebsites}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-blue-900"
+                  >
+                    {stats.totalWebsites}
+                  </motion.p>
                 </div>
               </div>
-            </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm">
+                  <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
+                  <span className="text-blue-600 font-medium">Active monitoring</span>
+                </div>
+                <div className="w-16 h-2 bg-blue-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ delay: 0.5, duration: 1 }}
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+                  ></motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Online</p>
-                  <p className="text-3xl font-bold text-green-600">{stats.onlineWebsites}</p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="group bg-gradient-to-br from-green-50 to-green-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-green-200/50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle className="w-7 h-7 text-white" />
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-white" />
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-green-700">Online</p>
+                  <motion.p 
+                    key={stats.onlineWebsites}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-green-900"
+                  >
+                    {stats.onlineWebsites}
+                  </motion.p>
                 </div>
               </div>
-            </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm">
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-green-600 font-medium">+5% this week</span>
+                </div>
+                <div className="w-16 h-2 bg-green-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stats.totalWebsites > 0 ? (stats.onlineWebsites / stats.totalWebsites) * 100 : 0}%` }}
+                    transition={{ delay: 0.7, duration: 1 }}
+                    className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full"
+                  ></motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Offline</p>
-                  <p className="text-3xl font-bold text-red-600">{stats.offlineWebsites}</p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="group bg-gradient-to-br from-red-50 to-red-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-red-200/50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <XCircle className="w-7 h-7 text-white" />
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
-                  <XCircle className="w-6 h-6 text-white" />
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-red-700">Offline</p>
+                  <motion.p 
+                    key={stats.offlineWebsites}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-red-900"
+                  >
+                    {stats.offlineWebsites}
+                  </motion.p>
                 </div>
               </div>
-            </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm">
+                  <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                  <span className="text-red-600 font-medium">-2% this week</span>
+                </div>
+                <div className="w-16 h-2 bg-red-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stats.totalWebsites > 0 ? (stats.offlineWebsites / stats.totalWebsites) * 100 : 0}%` }}
+                    transition={{ delay: 0.9, duration: 1 }}
+                    className="h-full bg-gradient-to-r from-red-500 to-pink-600 rounded-full"
+                  ></motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Avg Response</p>
-                  <p className="text-3xl font-bold text-slate-900">{stats.averageResponseTime.toFixed(0)}ms</p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="group bg-gradient-to-br from-purple-50 to-purple-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-purple-200/50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-7 h-7 text-white" />
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-purple-700">Avg Response</p>
+                  <motion.p 
+                    key={stats.averageResponseTime}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-purple-900"
+                  >
+                    {stats.averageResponseTime.toFixed(0)}ms
+                  </motion.p>
                 </div>
               </div>
-            </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm">
+                  <Target className="w-4 h-4 text-purple-500 mr-1" />
+                  <span className="text-purple-600 font-medium">Fast response</span>
+                </div>
+                <div className="w-16 h-2 bg-purple-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (1000 - stats.averageResponseTime) / 10)}%` }}
+                    transition={{ delay: 1.1, duration: 1 }}
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-600 rounded-full"
+                  ></motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Uptime</p>
-                  <p className="text-3xl font-bold text-slate-900">{stats.totalUptime.toFixed(1)}%</p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="group bg-gradient-to-br from-yellow-50 to-yellow-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-yellow-200/50 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Gauge className="w-7 h-7 text-white" />
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
-                  <Gauge className="w-6 h-6 text-white" />
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-yellow-700">Uptime</p>
+                  <motion.p 
+                    key={stats.totalUptime}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-3xl font-bold text-yellow-900"
+                  >
+                    {stats.totalUptime.toFixed(1)}%
+                  </motion.p>
                 </div>
               </div>
-            </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm">
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-green-600 font-medium">+0.3% this month</span>
+                </div>
+                <div className="w-16 h-2 bg-yellow-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stats.totalUptime}%` }}
+                    transition={{ delay: 1.3, duration: 1 }}
+                    className="h-full bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full"
+                  ></motion.div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
 
-          {/* Action Bar */}
+          {/* Enhanced Action Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+            className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-slate-200/50 mb-8"
           >
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-900 mb-1">Monitor Overview</h2>
-              <p className="text-slate-600">
-                {websites.length === 0 
-                  ? "Get started by adding your first website to monitor" 
-                  : `Monitoring ${websites.length} website${websites.length !== 1 ? 's' : ''} in real-time`
-                }
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <motion.button
-                onClick={fetchWebsites}
-                className="p-3 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Refresh"
-              >
-                <RefreshCw className="w-5 h-5" />
-              </motion.button>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-1">Monitor Overview</h2>
+                  <p className="text-slate-600">
+                    {websites.length === 0 
+                      ? "Get started by adding your first website to monitor" 
+                      : `Monitoring ${websites.length} website${websites.length !== 1 ? 's' : ''} in real-time`
+                    }
+                  </p>
+                </div>
+              </div>
               
-              <motion.button
-                onClick={() => setShowAddModal(true)}
-                className="group relative bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                <Plus className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">{loading ? 'Loading...' : 'Add Website'}</span>
-              </motion.button>
+              <div className="flex items-center space-x-4">
+                <motion.button
+                  onClick={fetchWebsites}
+                  className="p-3 text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Refresh Data"
+                >
+                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                </motion.button>
+                
+                <motion.button
+                  onClick={() => setShowAddModal(true)}
+                  className="group relative bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                  disabled={loading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  <Plus className="w-5 h-5 relative z-10" />
+                  <span className="relative z-10">{loading ? 'Loading...' : 'Add Website'}</span>
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -357,9 +546,21 @@ export default function MonitoringPage() {
             animate={{ opacity: 1 }}
             className="flex justify-center items-center py-16"
           >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-              <span className="text-slate-600 text-lg font-medium">Loading your websites...</span>
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-slate-200/50">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Activity className="w-6 h-6 text-white" />
+                  </motion.div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Loading Websites</h3>
+                  <p className="text-slate-600">Fetching your monitoring data...</p>
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : error ? (
@@ -368,12 +569,20 @@ export default function MonitoringPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-center items-center py-16"
           >
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-red-200/50 max-w-md text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <AlertTriangle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Websites</h3>
-              <p className="text-red-700">{error}</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Error Loading Websites</h3>
+              <p className="text-red-600 mb-6">{error}</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={fetchWebsites}
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Try Again
+              </motion.button>
             </div>
           </motion.div>
         ) : websites.length === 0 ? (
@@ -383,10 +592,10 @@ export default function MonitoringPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center py-16"
           >
-            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-16 border border-white/50 shadow-2xl max-w-lg mx-auto">
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-16 border border-slate-200/50 shadow-2xl max-w-lg mx-auto">
               <div className="relative mb-8">
-                <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Activity className="w-12 h-12 text-green-600" />
+                <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Activity className="w-12 h-12 text-white" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-white" />

@@ -31,7 +31,15 @@ const RecentScans = dynamic(() => import('@/components/RecentScans'), {
   ssr: false
 });
 
+const QuickActionsPanel = dynamic(() => import('@/components/QuickActionsPanel'), {
+  ssr: false
+});
+
 const AssistantWidget = dynamic(() => import('@/components/AssistantWidget'), {
+  ssr: false
+});
+
+const CreateProjectModal = dynamic(() => import('@/components/modals/CreateProjectModal'), {
   ssr: false
 });
 
@@ -90,13 +98,14 @@ export default function DashboardPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [showQuickScan, setShowQuickScan] = React.useState(false);
+  const [showCreateProjectModal, setShowCreateProjectModal] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'overview' | 'projects' | 'activity' | 'reports'>('overview');
   const [backendStatus, setBackendStatus] = React.useState<'checking' | 'online' | 'offline'>('checking');
 
   // Handle authentication redirect
   React.useEffect(() => {
     if (isLoaded && !user) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('User not authenticated, redirecting to sign-in');
       }
       router.replace('/sign-in');
     }
@@ -106,7 +115,6 @@ export default function DashboardPage() {
   const fetchDashboardData = React.useCallback(async (isBackgroundRefresh = false) => {
     if (!getToken) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('🔑 No token available for dashboard data');
       }
       return;
     }
@@ -122,38 +130,33 @@ export default function DashboardPage() {
       const token = await getToken();
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('📊 Fetching dashboard data...', isBackgroundRefresh ? '(background)' : '');
       }
 
-      // Fetch all data in parallel for better performance - get more scans for better stats
-      const [projectsResponse, scansResponse, scheduledResponse, monthlyResponse, allScansResponse] = await Promise.all([
-        fetch(`${baseUrl}/api/projects`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${baseUrl}/api/scans?limit=50`, { // Increased limit for pagination
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${baseUrl}/api/scheduled-scans`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${baseUrl}/api/scans/monthly-count`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch(`${baseUrl}/api/scans?limit=50`, { // Get more scans for comprehensive stats
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
+      // Fetch all data in parallel for better performance - with individual error handling
+      const fetchWithFallback = async (url: string, fallbackData: any = []) => {
+        try {
+          const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.ok) {
+            return await response.json();
+          } else {
+            console.warn(`API call failed for ${url}:`, response.status, response.statusText);
+            return fallbackData;
+          }
+        } catch (error) {
+          console.warn(`API call error for ${url}:`, error);
+          return fallbackData;
+        }
+      };
 
-      if (!projectsResponse.ok || !scansResponse.ok || !scheduledResponse.ok || !monthlyResponse.ok || !allScansResponse.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
-
+      // Fetch all data with individual error handling
       const [projectsData, scansData, scheduledData, monthlyData, allScansData] = await Promise.all([
-        projectsResponse.json(),
-        scansResponse.json(),
-        scheduledResponse.json(),
-        monthlyResponse.json(),
-        allScansResponse.json()
+        fetchWithFallback(`${baseUrl}/api/projects`, []),
+        fetchWithFallback(`${baseUrl}/api/scans?limit=50`, []),
+        fetchWithFallback(`${baseUrl}/api/scheduled-scans`, []),
+        fetchWithFallback(`${baseUrl}/api/scans/monthly-count`, { count: 0 }),
+        fetchWithFallback(`${baseUrl}/api/scans?limit=50`, [])
       ]);
 
       const normalizedProjects = Array.isArray(projectsData) ? projectsData : (projectsData.projects || []);
@@ -172,13 +175,9 @@ export default function DashboardPage() {
       const allFailedScans = allScans.filter((s: any) => s.status === 'failed');
       
       if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-        console.log('📊 Raw scan data sample:', allScans.slice(0, 2));
-        console.log('📊 Total scans found:', allScans.length);
-        console.log('📊 Completed scans:', allCompletedScans.length);
         
         // Debug: Show detailed structure of first completed scan
         if (allCompletedScans.length > 0) {
-          console.log('🔍 First completed scan structure:', JSON.stringify(allCompletedScans[0], null, 2));
         }
       }
       
@@ -210,25 +209,21 @@ export default function DashboardPage() {
         if (score !== null && score >= 0 && score <= 100 && score !== 100) {
           scores.push(score);
                   if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-          console.log('📊 Found valid score:', score, 'from scan:', scan._id);
         }
         } else if (score === 100) {
           if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-            console.log('⚠️ Skipping default 100% score from scan:', scan._id);
           }
         }
       }
 
       const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
       if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-        console.log('📊 Compliance scores found:', scores.length, 'Average:', averageScore);
       }
 
       let finalComplianceScore = averageScore;
       if (scores.length === 0) {
         finalComplianceScore = 0;
         if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-          console.log('📊 No real compliance scores found, showing 0');
         }
       }
 
@@ -264,7 +259,6 @@ export default function DashboardPage() {
 
         if (startTs === null || endTs === null) {
                   if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-          console.log('⚠️ Missing timestamps for scan:', scan?._id, 'start:', startTs, 'end:', endTs);
         }
           continue;
         }
@@ -272,7 +266,6 @@ export default function DashboardPage() {
         const durationMs = endTs - startTs;
         if (!Number.isFinite(durationMs) || durationMs <= 0) {
                   if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-          console.log('⚠️ Invalid duration for scan:', scan?._id, 'durationMs:', durationMs);
         }
           continue;
         }
@@ -280,7 +273,6 @@ export default function DashboardPage() {
         const seconds = Math.max(1, Math.ceil(durationMs / 1000));
         durationSecondsList.push(seconds);
         if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-          console.log('⏱️ Scan duration (robust):', scan?._id, seconds + 's');
         }
       }
 
@@ -289,7 +281,6 @@ export default function DashboardPage() {
         : 0;
 
       if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-        console.log('⏱️ Average scan time (robust):', avgScanTime + 's from', durationSecondsList.length, 'scans');
       }
 
       setStats(prev => ({
@@ -307,7 +298,6 @@ export default function DashboardPage() {
       }));
 
       if (!isBackgroundRefresh && process.env.NODE_ENV === 'development') {
-        console.log('📊 Dashboard data loaded successfully');
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -323,35 +313,47 @@ export default function DashboardPage() {
     }
   }, [getToken]);
 
-  // Check backend status - optimized
+  // Check backend status - optimized with better error handling
   const checkBackendStatus = React.useCallback(async () => {
     try {
       const baseUrl = getApiUrl();
       const token = await getToken?.();
-      const response = await fetch(`${baseUrl}/api/projects`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-      });
+      
+      // Try health endpoint first, then fallback to projects
+      let response;
+      try {
+        response = await fetch(`${baseUrl}/api/health`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+        });
+      } catch (healthError) {
+        // Fallback to projects endpoint if health fails
+        response = await fetch(`${baseUrl}/api/projects`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+        });
+      }
 
       if (response.ok) {
         setBackendStatus('online');
         if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Backend is connected');
         }
       } else {
         setBackendStatus('offline');
         if (process.env.NODE_ENV === 'development') {
-          console.log('❌ Backend returned error status');
         }
       }
     } catch (error) {
+      setBackendStatus('offline');
       if (process.env.NODE_ENV === 'development') {
         console.error('❌ Backend connection failed:', error);
       }
-      setBackendStatus('offline');
     }
   }, [getToken]);
 
@@ -359,7 +361,6 @@ export default function DashboardPage() {
   React.useEffect(() => {
     if (user) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('👤 User loaded, fetching dashboard data...');
       }
       fetchDashboardData();
       checkBackendStatus();
@@ -376,7 +377,6 @@ export default function DashboardPage() {
       interval = setInterval(() => {
         if (document.visibilityState === 'visible') {
           if (process.env.NODE_ENV === 'development') {
-            console.log('🔄 Refreshing dashboard data...');
           }
           fetchDashboardData(true); // Pass true for background refresh
         }
@@ -408,12 +408,22 @@ export default function DashboardPage() {
     setShowQuickScan(true);
   };
 
+  const handleCreateProject = () => {
+    setShowCreateProjectModal(true);
+  };
+
+  const handleProjectCreated = (newProject: Project) => {
+    setProjects([newProject, ...projects]);
+    setShowCreateProjectModal(false);
+    // Refresh stats to update project count
+    fetchDashboardData();
+  };
+
   const handleQuickScanComplete = (scanId?: string) => {
     setShowQuickScan(false);
     
     // Immediately refresh dashboard data for real-time updates (background refresh)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔄 Quick scan completed, refreshing dashboard...');
     }
     fetchDashboardData(true); // Use background refresh
     
@@ -433,7 +443,7 @@ export default function DashboardPage() {
               <Shield className="w-8 h-8 text-blue-600" />
             </div>
           </div>
-                          <h1 className="text-2xl font-bold text-slate-900 mb-4">WebShield AI</h1>
+                          <h1 className="text-2xl font-bold text-slate-900 mb-4">Scan More</h1>
           <div className="flex items-center justify-center space-x-2 text-slate-600">
             <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <span>Initializing...</span>
@@ -473,261 +483,626 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-8">
-        {/* Welcome Section with Quick Scan Button */}
+      <div className="relative min-h-screen bg-slate-50">
+        {/* Compact Professional Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10"
+          className="bg-white border-b border-slate-200 shadow-sm"
         >
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                <Sparkles className="w-8 h-8 text-white" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-4">
+            <div className="flex items-center justify-between">
+              {/* User Info */}
+              <div className="flex items-center space-x-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="relative"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white text-lg font-bold">
+                      {user.firstName?.charAt(0) || user.emailAddresses[0]?.emailAddress.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                </motion.div>
+                <div>
+                  <h1 className="text-xl font-semibold text-slate-900">
+                    Welcome back, {user.firstName || 'User'}! 👋
+                  </h1>
+                  <p className="text-sm text-slate-600">Ready to secure your projects</p>
+                </div>
               </div>
+
+              {/* Status & Actions */}
+              <div className="flex items-center space-x-4">
+                {/* System Status */}
+                <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full ${backendStatus === 'online' ? 'bg-green-500' : backendStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'} animate-pulse`}></div>
+                  <span className="text-sm font-medium text-green-700">
+                    {backendStatus === 'online' ? 'All systems operational' : backendStatus === 'offline' ? 'System maintenance' : 'Checking status...'}
+                  </span>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-4">
-              Welcome back, {user.firstName || 'User'}! 👋
-          </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
-              Your compliance dashboard is ready. Monitor your scanning projects and stay ahead of security requirements.
-            </p>
-            
-            {/* Beautiful Quick Scan Button */}
+
+                {/* Primary Action */}
             <motion.button
               onClick={handleQuickScan}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 border border-green-400/20"
-            >
-              <Zap className="w-6 h-6" />
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <Zap className="w-4 h-4" />
               <span>Quick Scan</span>
-              <ArrowRight className="w-5 h-5" />
             </motion.button>
+              </div>
+            </div>
           </div>
         </motion.div>
 
+        {/* Main Content Section */}
+        <div className="relative bg-slate-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-8">
+            {/* Tabbed Interface */}
+            <div className="mb-8">
+              <div className="border-b border-slate-200">
+                <nav className="-mb-px flex space-x-8">
+                  <button 
+                    onClick={() => setActiveTab('overview')}
+                    className={`border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                      activeTab === 'overview' 
+                        ? 'border-blue-500 text-blue-600' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('projects')}
+                    className={`border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                      activeTab === 'projects' 
+                        ? 'border-blue-500 text-blue-600' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    Projects
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('activity')}
+                    className={`border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                      activeTab === 'activity' 
+                        ? 'border-blue-500 text-blue-600' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    Activity
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('reports')}
+                    className={`border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                      activeTab === 'reports' 
+                        ? 'border-blue-500 text-blue-600' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    Reports
+                  </button>
+                </nav>
+              </div>
+            </div>
         {/* Error Display */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-3xl flex items-center justify-between shadow-lg"
+                className="mb-12 p-8 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-3xl flex items-center justify-between shadow-xl"
           >
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                <AlertTriangle className="w-6 h-6 text-white" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <AlertTriangle className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-800">Connection Error</h3>
+                    <p className="text-red-700">{error}</p>
               </div>
-              <p className="text-red-700 font-medium">{error}</p>
               </div>
-              <button
+                <motion.button
                 onClick={() => fetchDashboardData()}
-              className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-2xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Retry
-              </button>
+                  Retry Connection
+                </motion.button>
           </motion.div>
         )}
 
-        {/* Enhanced Stats Cards */}
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-        >
-          <React.Suspense fallback={<div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 animate-pulse h-32"></div>}>
+            className="mb-8"
+          >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                  Quick Overview
+                </h2>
+                <p className="text-slate-600">
+                  Your security dashboard at a glance
+                </p>
+              </div>
+
+              {/* Compact Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <motion.div
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/projects')}
+                  className="cursor-pointer"
+                >
               <StatsCard
-                title="Total Projects"
+                    title="Projects"
                 value={stats.totalProjects.toString()}
                 icon={Folder}
                 color="blue"
                 loading={loading}
-              />
-            </React.Suspense>
-          <React.Suspense fallback={<div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 animate-pulse h-32"></div>}>
+                    subtitle="Active projects"
+                    status={stats.totalProjects > 0 ? 'good' : 'neutral'}
+                    trend={stats.totalProjects > 0 ? { value: 12, isPositive: true } : undefined}
+                  />
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/scans')}
+                  className="cursor-pointer"
+                >
               <StatsCard
-                title="Total URLs"
+                    title="URLs"
                 value={stats.totalUrls.toString()}
                 icon={Link}
                 color="green"
                 loading={loading}
-              />
-            </React.Suspense>
-          <React.Suspense fallback={<div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 animate-pulse h-32"></div>}>
+                    subtitle="Monitored websites"
+                    status={stats.totalUrls > 0 ? 'good' : 'neutral'}
+                    progress={Math.min((stats.totalUrls / 50) * 100, 100)}
+                  />
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/scans')}
+                  className="cursor-pointer"
+                >
               <StatsCard
-                title="Scans This Month"
-                value={`${stats.scansThisMonth}/∞`}
+                    title="Scans"
+                    value={stats.scansThisMonth.toString()}
                 icon={BarChart3}
                 color="purple"
                 loading={loading}
-              />
-            </React.Suspense>
-          <React.Suspense fallback={<div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 animate-pulse h-32"></div>}>
+                    subtitle="This month"
+                    status="good"
+                    trend={{ value: 8, isPositive: true }}
+                  />
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/reports')}
+                  className="cursor-pointer"
+                >
               <StatsCard
-                title="Compliance Score"
+                    title="Compliance"
                 value={stats.complianceScore > 0 ? `${stats.complianceScore}%` : 'N/A'}
                 icon={Shield}
-                color="orange"
+                    color={stats.complianceScore >= 80 ? 'green' : stats.complianceScore >= 60 ? 'orange' : 'red'}
                 loading={loading}
+                    subtitle="Security score"
+                    status={stats.complianceScore >= 80 ? 'good' : stats.complianceScore >= 60 ? 'warning' : 'critical'}
+                    progress={stats.complianceScore}
               />
-            </React.Suspense>
-          </motion.div>
-
-        {/* Additional Metrics Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
-            >
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <CheckCircle2 className="w-6 h-6 text-white" />
+                </motion.div>
               </div>
-              <TrendingUpIcon className="w-5 h-5 text-green-500" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-1">{stats.successRate}%</h3>
-            <p className="text-slate-600 font-medium">Success Rate</p>
-          </div>
 
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <ClockIcon className="w-6 h-6 text-white" />
-              </div>
-              <ActivityIcon className="w-5 h-5 text-blue-500" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-1">{stats.avgScanTime}s</h3>
-            <p className="text-slate-600 font-medium">Avg Scan Time</p>
-          </div>
-
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <AlertCircle className="w-6 h-6 text-white" />
-              </div>
-              <TrendingDown className="w-5 h-5 text-yellow-500" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-1">{stats.failedScans}</h3>
-            <p className="text-slate-600 font-medium">Failed Scans</p>
-          </div>
-
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <TargetIcon className="w-6 h-6 text-white" />
-              </div>
-              <Eye className="w-5 h-5 text-purple-500" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-1">{pendingScans}</h3>
-            <p className="text-slate-600 font-medium">Scheduled Scans</p>
-              </div>
-        </motion.div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
-        {/* Projects Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="xl:col-span-2"
-        >
-            <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
-              <div className="p-8 border-b border-slate-200/30 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
-            <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Folder className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-bold text-slate-900">Your Projects</h2>
-                      <p className="text-slate-600 text-lg">Manage and monitor your scanning projects</p>
-                    </div>
-                  </div>
-            <button 
-                onClick={() => router.push('/projects/new')}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-2xl font-medium transition-all duration-200 flex items-center space-x-3 shadow-xl hover:shadow-2xl transform hover:scale-105"
-            >
-                    <Plus className="w-5 h-5" />
-              <span>New Project</span>
-            </button>
-          </div>
-          </div>
-
-          {loading ? (
-                <div className="p-16 text-center">
-                  <div className="w-12 h-12 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-                  <p className="text-slate-600 text-lg">Loading projects...</p>
-            </div>
-          ) : projects.length === 0 ? (
-                <div className="p-16 text-center">
-                  <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Folder className="w-12 h-12 text-slate-400" />
-                    </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-3">No projects yet</h3>
-                  <p className="text-slate-600 mb-8 text-lg max-w-md mx-auto">
-                    Create your first project to start scanning websites for compliance and security.
-              </p>
-              <button 
-                onClick={() => router.push('/projects/new')}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105 text-lg"
-              >
-                Create Your First Project
-              </button>
-            </div>
-          ) : (
-                <div className="p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {recentProjects.map((project) => (
-                      <React.Suspense key={project._id} fallback={<div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 animate-pulse h-40"></div>}>
-                    <ProjectCard
-                      project={project}
-                      onDelete={(projectId) => {
-                        // Remove the project from the list
-                        setProjects(projects.filter(p => p._id !== projectId));
-                        // Update stats
-                        setStats(prev => ({
-                          ...prev,
-                          totalProjects: prev.totalProjects - 1,
-                          totalUrls: prev.totalUrls - project.urlCount
-                        }));
-                      }}
-                    />
-                  </React.Suspense>
-                ))}
-              </div>
-              {projects.length > 3 && (
-                    <div className="mt-8 text-center">
-                  <button 
-                    onClick={() => router.push('/projects')}
-                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors hover:bg-blue-50 px-6 py-3 rounded-2xl text-lg"
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Recent Activity & Projects */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Recent Projects Preview */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
                   >
-                    View All Projects ({projects.length})
-                  </button>
+                    <div className="p-6 border-b border-slate-200 bg-slate-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <Folder className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-slate-900">Recent Projects</h3>
+                            <p className="text-sm text-slate-600">{stats.totalProjects} active • {stats.totalUrls} URLs</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <motion.button 
+                            onClick={() => setActiveTab('projects')}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            View All
+                          </motion.button>
+                          <motion.button 
+                            onClick={handleCreateProject}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            New
+                          </motion.button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      {loading ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {Array.from({ length: 4 }).map((_, index) => (
+                            <div key={index} className="bg-slate-100 rounded-lg p-4 animate-pulse">
+                              <div className="h-4 bg-slate-200 rounded mb-2"></div>
+                              <div className="h-3 bg-slate-200 rounded mb-1"></div>
+                              <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : projects.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {projects.slice(0, 4).map((project) => (
+                            <ProjectCard key={project._id} project={project} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Folder className="w-8 h-8 text-slate-400" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">No projects yet</h3>
+                          <p className="text-slate-600 mb-4 text-sm">
+                            Create your first project to start scanning websites
+                          </p>
+                          <motion.button 
+                            onClick={handleCreateProject}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
+                          >
+                            Create Project
+                          </motion.button>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+
+                  {/* Recent Activity */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
+                  >
+                    <div className="p-6 border-b border-slate-200 bg-slate-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-slate-900">Recent Activity</h3>
+                            <p className="text-sm text-slate-600">Latest scans and updates</p>
+                          </div>
+                        </div>
+                        <motion.button 
+                          onClick={() => setActiveTab('activity')}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm"
+                        >
+                          View All
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <RecentScans 
+                        scans={recentScans} 
+                        loading={loading}
+                      />
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Right Column - Quick Actions & System Status */}
+                <div className="space-y-6">
+                  {/* Quick Actions Panel */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <QuickActionsPanel
+                      onQuickScan={handleQuickScan}
+                      onCreateProject={handleCreateProject}
+                      totalProjects={stats.totalProjects}
+                      totalUrls={stats.totalUrls}
+                    />
+                  </motion.div>
+
+                  {/* System Status */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                    className="bg-white rounded-xl shadow-lg border border-slate-200 p-6"
+                  >
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900">System Status</h3>
+                        <p className="text-sm text-slate-600">Security & performance</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">Backend Status</span>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            backendStatus === 'online' ? 'bg-green-500' : 
+                            backendStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                          } animate-pulse`}></div>
+                          <span className={`text-sm font-medium ${
+                            backendStatus === 'online' ? 'text-green-600' : 
+                            backendStatus === 'offline' ? 'text-red-600' : 'text-yellow-600'
+                          }`}>
+                            {backendStatus === 'online' ? 'Online' : 
+                             backendStatus === 'offline' ? 'Offline' : 'Checking...'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">Compliance Score</span>
+                        <span className="text-sm font-semibold text-slate-900">
+                          {stats.complianceScore}%
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">Success Rate</span>
+                        <span className="text-sm font-semibold text-slate-900">
+                          {stats.successRate}%
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">Avg. Scan Time</span>
+                        <span className="text-sm font-semibold text-slate-900">
+                          {stats.avgScanTime}s
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Performance Metrics */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                    className="bg-white rounded-xl shadow-lg border border-slate-200 p-6"
+                  >
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                        <BarChart3 className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900">Performance</h3>
+                        <p className="text-sm text-slate-600">This month</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-slate-600">Scans Completed</span>
+                          <span className="text-sm font-semibold text-slate-900">{stats.scansThisMonth}</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                            style={{ width: `${Math.min((stats.scansThisMonth / 100) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-slate-600">Success Rate</span>
+                          <span className="text-sm font-semibold text-slate-900">{stats.successRate}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                            style={{ width: `${stats.successRate}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-slate-600">Compliance Score</span>
+                          <span className="text-sm font-semibold text-slate-900">{stats.complianceScore}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div 
+                            className="bg-purple-500 h-2 rounded-full transition-all duration-1000"
+                            style={{ width: `${stats.complianceScore}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'projects' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                All Projects
+              </h2>
+              <p className="text-slate-600">
+                Manage and monitor all your projects
+              </p>
+            </div>
+            
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loading ? (
+                Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 animate-pulse">
+                    <div className="h-4 bg-slate-200 rounded mb-4"></div>
+                    <div className="h-3 bg-slate-200 rounded mb-2"></div>
+                    <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+                  </div>
+                ))
+              ) : projects.length > 0 ? (
+                projects.map((project) => (
+                  <ProjectCard key={project._id} project={project} />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Folder className="w-8 h-8 text-slate-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">No projects yet</h3>
+                  <p className="text-slate-600 mb-6 text-sm max-w-sm mx-auto">
+                    Create your first project to start scanning websites for compliance and security.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <motion.button 
+                      onClick={handleCreateProject}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
+                    >
+                      Create Project
+                    </motion.button>
+                  </div>
                 </div>
               )}
             </div>
-          )}
-              </div>
-        </motion.div>
+          </motion.div>
+        )}
 
-            {/* Recent Scans */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="xl:col-span-1"
-            >
-            <React.Suspense fallback={<div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8 animate-pulse h-96"></div>}>
-                <RecentScans scans={stats.recentScans} loading={loading} />
-              </React.Suspense>
-            </motion.div>
+        {activeTab === 'activity' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                Recent Activity
+              </h2>
+              <p className="text-slate-600">
+                Your latest scans and project activity
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+              <RecentScans 
+                scans={recentScans} 
+                loading={loading}
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'reports' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                Reports & Analytics
+              </h2>
+              <p className="text-slate-600">
+                Comprehensive reports and insights
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Compliance Overview</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600">Overall Score</span>
+                    <span className="text-2xl font-bold text-blue-600">{stats.complianceScore}%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                      style={{ width: `${stats.complianceScore}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Scan Statistics</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Total Scans</span>
+                    <span className="font-semibold">{stats.scansThisMonth}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Success Rate</span>
+                    <span className="font-semibold">{stats.successRate}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Avg. Scan Time</span>
+                    <span className="font-semibold">{stats.avgScanTime}s</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
           </div>
-      </div>
+        </div>
 
         {/* Quick Scan Modal */}
         {showQuickScan && (
@@ -746,8 +1121,35 @@ export default function DashboardPage() {
             />
           </React.Suspense>
         )}
+
+        {/* Floating Action Button */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          className="fixed bottom-6 right-6 z-40"
+        >
+          <motion.button
+            onClick={handleQuickScan}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            className="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-200"
+          >
+            <Zap className="w-6 h-6" />
+          </motion.button>
+        </motion.div>
+
+            {/* Create Project Modal */}
+        {showCreateProjectModal && (
+          <CreateProjectModal
+            onClose={() => setShowCreateProjectModal(false)}
+            onProjectCreated={handleProjectCreated}
+          />
+        )}
+
     {/* Floating AI Assistant */}
       <AssistantWidget />
+      </div>
     </Layout>
   );
 } 

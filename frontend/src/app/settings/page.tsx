@@ -120,7 +120,6 @@ export default function SettingsPage() {
       }
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Fetching user profile...');
       }
       const response = await fetch(`${getApiUrl()}/api/user/profile`, {
         headers: {
@@ -130,7 +129,6 @@ export default function SettingsPage() {
       });
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Response status:', response.status);
       }
       
       if (!response.ok) {
@@ -149,12 +147,10 @@ export default function SettingsPage() {
 
       const data = await response.json();
       if (process.env.NODE_ENV === 'development') {
-        console.log('Settings page - Full API response:', data);
       }
       
       if (data.user) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('User data received:', data.user);
         }
         setProfile(data.user);
         // setEditForm({ // This line is now handled by the useEffect hook
@@ -195,7 +191,7 @@ export default function SettingsPage() {
         setIsEditing(false);
         
         // Show success message
-        alert('Profile updated successfully!');
+        // Show success message - could use toast notification
       } else {
         throw new Error('Failed to update profile');
       }
@@ -203,7 +199,8 @@ export default function SettingsPage() {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error updating profile:', error);
       }
-      alert('Failed to update profile. Please try again.');
+              // Handle error - could show toast notification
+        console.error('Failed to update profile:', error);
     }
   };
 
@@ -223,14 +220,15 @@ export default function SettingsPage() {
       if (response.ok) {
         const data = await response.json();
         setProfile(data.user);
-        alert('Statistics fixed successfully! Your counts have been updated.');
+        // Show success message - could use toast notification
       } else {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fix statistics');
       }
     } catch (error) {
       console.error('Error fixing statistics:', error);
-      alert(`Failed to fix statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              // Handle error - could show toast notification
+        console.error('Failed to fix statistics:', error);
     } finally {
       setLoading(false);
     }

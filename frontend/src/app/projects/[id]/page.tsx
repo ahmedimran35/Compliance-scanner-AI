@@ -16,7 +16,6 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ArrowLeft,
   Play,
   BarChart3,
   Globe,
@@ -391,7 +390,8 @@ export default function ProjectDetailPage() {
                      `🌐 Website: ${selectedUrlForSchedule?.name || selectedUrlForSchedule?.url}\n\n` +
                      `The scan will run automatically at the scheduled time. You can create multiple schedules for the same URL and manage all your scheduled scans from the Scheduled Scans page.`;
 
-      alert(message);
+              // Handle error message - could show toast notification
+        console.error('Project error:', message);
       
       // Redirect to scheduled scans page after a short delay
       setTimeout(() => {

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Menu, X, ChevronDown, User, LogOut, Zap, Sparkles } from 'lucide-react';
+// removed accidental duplicate React import and global service indicator per user request
 import { useUser, SignOutButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Button from '../ui/Button';
@@ -16,9 +17,9 @@ const Header = () => {
 
   const navigation = [
     { name: 'Features', href: '/#features', hasDropdown: true },
-    { name: 'Security Tools', href: '/security-engine' },
-    { name: 'Pricing', href: '/#pricing' },
     { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Documentation', href: '/docs' },
   ];
 
   const handleMenuToggle = () => {
@@ -43,7 +44,7 @@ const Header = () => {
     closeAllMenus();
     
     // Routes that require authentication
-    const protectedRoutes = ['/dashboard', '/security-engine'];
+    const protectedRoutes = ['/dashboard'];
     
     // Check if the route requires authentication and user is not logged in
     if (protectedRoutes.includes(href) && (!isLoaded || !user)) {
@@ -67,17 +68,18 @@ const Header = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center"
+            className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => router.push('/')}
           >
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-3 shadow-lg">
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div className="flex items-center">
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                WebShield
+                Scan More
               </span>
               <span className="ml-2 text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full font-medium">
-                AI
+                Alpha
               </span>
             </div>
           </motion.div>
@@ -114,17 +116,7 @@ const Header = () => {
                             <div className="text-xs text-neutral-500">WCAG, GDPR, HIPAA</div>
                           </div>
                         </button>
-                        <div className="px-4 py-2 border-b border-neutral-100 mt-2">
-                          <h3 className="text-sm font-semibold text-neutral-900 mb-1">Security Engine</h3>
-                          <p className="text-xs text-neutral-500">Real security scanning tools</p>
-                        </div>
-                        <button onClick={() => handleNavigation('/security-engine')} className="flex items-center w-full px-4 py-2 text-sm text-neutral-600 hover:bg-green-50 hover:text-green-600">
-                          <Shield className="w-4 h-4 mr-3 text-green-500" />
-                          <div>
-                            <div className="font-medium">Security Tools</div>
-                            <div className="text-xs text-neutral-500">Port Scanner, SSL, DNS</div>
-                          </div>
-                        </button>
+
                         <button onClick={() => handleNavigation('/dashboard')} className="flex items-center w-full px-4 py-2 text-sm text-neutral-600 hover:bg-purple-50 hover:text-purple-600">
                           <Sparkles className="w-4 h-4 mr-3 text-purple-500" />
                           <div>
@@ -193,10 +185,10 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Button variant="outline" size="sm" className="border-neutral-300 text-neutral-700 hover:bg-neutral-50" onClick={() => handleNavigation('/sign-in')}>
+                <Button variant="outline" size="sm" className="border-neutral-300 text-neutral-700 hover:bg-neutral-50 min-h-[44px] px-6" onClick={() => handleNavigation('/sign-in')}>
                   Sign In
                 </Button>
-                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg" onClick={() => handleNavigation('/sign-up')}>
+                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg min-h-[44px] px-6" onClick={() => handleNavigation('/sign-up')}>
                   Start Free
                 </Button>
               </>
@@ -237,9 +229,7 @@ const Header = () => {
                        <button onClick={() => handleNavigation('/dashboard')} className="block text-sm text-neutral-500 hover:text-blue-600 py-1 w-full text-left">
                          AI Compliance Scanner
                        </button>
-                       <button onClick={() => handleNavigation('/security-engine')} className="block text-sm text-neutral-500 hover:text-blue-600 py-1 w-full text-left">
-                         Security Engine Tools
-                       </button>
+
                        <button onClick={() => handleNavigation('/dashboard')} className="block text-sm text-neutral-500 hover:text-blue-600 py-1 w-full text-left">
                          Analytics & Reports
                        </button>
@@ -261,10 +251,10 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                                          <Button variant="outline" size="sm" className="w-full border-neutral-300 text-neutral-700 hover:bg-neutral-50" onClick={() => handleNavigation('/sign-in')}>
+                                          <Button variant="outline" size="sm" className="w-full border-neutral-300 text-neutral-700 hover:bg-neutral-50 min-h-[44px] px-6" onClick={() => handleNavigation('/sign-in')}>
                         Sign In
                       </Button>
-                      <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg" onClick={() => handleNavigation('/sign-up')}>
+                      <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg min-h-[44px] px-6" onClick={() => handleNavigation('/sign-up')}>
                         Start Free
                       </Button>
                   </>

@@ -1,4 +1,4 @@
-import { Clock, CheckCircle, AlertTriangle, Loader2, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, CheckCircle, AlertTriangle, Loader2, ExternalLink, ChevronLeft, ChevronRight, Eye, RotateCcw, Share2, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -88,9 +88,18 @@ export default function RecentScans({ scans, loading }: RecentScansProps) {
   };
   
   return (
-    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200">
-      <div className="p-6 border-b border-slate-200">
-        <h2 className="text-xl font-bold text-slate-900">Recent Scans</h2>
+    <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="p-6 border-b border-slate-200/50 bg-gradient-to-r from-slate-50/80 to-blue-50/80">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Recent Scans</h2>
+            <p className="text-sm text-slate-600 mt-1">Latest scan results and status</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs text-slate-600">Live</span>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -122,35 +131,87 @@ export default function RecentScans({ scans, loading }: RecentScansProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                className="group bg-slate-50/50 hover:bg-slate-100/50 rounded-xl p-4 border border-slate-200/50 hover:border-slate-300/50 transition-all duration-200"
               >
-                <div className="flex-shrink-0">
-                  {getStatusIcon(scan.status)}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-900 truncate">
-                      Scan #{scan._id.slice(-6)}
-                    </p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(scan.status)}`}>
-                      {getStatusText(scan.status)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-slate-500">
-                      {formatDate(scan.createdAt)}
-                    </p>
-                    {scan.results?.overall?.score && (
-                      <p className="text-xs font-medium text-slate-700">
-                        Score: {scan.results.overall.score}%
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      {getStatusIcon(scan.status)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        Scan #{scan._id.slice(-6)}
                       </p>
-                    )}
+                      <p className="text-xs text-slate-500">
+                        {formatDate(scan.createdAt)}
+                      </p>
+                    </div>
                   </div>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(scan.status)}`}>
+                    {getStatusText(scan.status)}
+                  </span>
                 </div>
                 
-                <ExternalLink className="w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* Scan Results Preview */}
+                {scan.results?.overall?.score && (
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-slate-600">Compliance Score</span>
+                      <span className="text-sm font-semibold text-slate-900">
+                        {scan.results.overall.score}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${scan.results.overall.score}%` }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className={`h-2 rounded-full ${
+                          scan.results.overall.score >= 80 ? 'bg-green-500' : 
+                          scan.results.overall.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}
+                      ></motion.div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="View Report"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Re-scan"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      title="Share"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </motion.button>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    title="Download Report"
+                  >
+                    <Download className="w-4 h-4" />
+                  </motion.button>
+                </div>
               </motion.div>
             ))}
           </div>

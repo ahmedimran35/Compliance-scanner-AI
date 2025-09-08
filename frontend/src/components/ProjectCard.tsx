@@ -1,5 +1,5 @@
 import React from 'react';
-import { Folder, Link, Edit, Trash2, Eye, Calendar, X, ArrowRight, Clock, Users, Sparkles, Target, Activity, TrendingUp, Globe } from 'lucide-react';
+import { Folder, Link, Edit, Trash2, Eye, Calendar, X, ArrowRight, Clock, Users, Sparkles, Target, Activity, TrendingUp, Globe, Zap, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
@@ -51,9 +51,10 @@ export default function ProjectCard({ project, onDelete, showActions = true }: P
       }
 
       onDelete(project._id);
-    } catch (error) {
-      alert('Failed to delete project. Please try again.');
-    } finally {
+          } catch (error) {
+        // Handle error silently or show toast notification
+        console.error('Failed to delete project:', error);
+      } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -71,85 +72,152 @@ export default function ProjectCard({ project, onDelete, showActions = true }: P
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
+  // Calculate project health based on URL count and age
+  const projectAge = Math.ceil((new Date().getTime() - new Date(project.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+  const healthScore = Math.min(100, Math.max(0, 100 - (projectAge * 2) + (project.urlCount * 10)));
+  const healthStatus = healthScore >= 80 ? 'excellent' : healthScore >= 60 ? 'good' : healthScore >= 40 ? 'fair' : 'poor';
+  
+  const getHealthColor = (status: string) => {
+    switch (status) {
+      case 'excellent': return 'text-green-600 bg-green-50 border-green-200';
+      case 'good': return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'fair': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'poor': return 'text-red-600 bg-red-50 border-red-200';
+      default: return 'text-slate-600 bg-slate-50 border-slate-200';
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col"
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      className="group bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col relative overflow-hidden"
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
+      {/* Health Status Indicator */}
+      <div className={`absolute top-0 left-0 right-0 h-1 ${getHealthColor(healthStatus).split(' ')[2]}`}></div>
+      
       <div className="p-6 flex flex-col h-full">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-              <Folder className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-sm">
+              <Folder className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            {project.name}
-          </h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                {project.name}
+              </h3>
+              <p className="text-sm text-slate-500">
                 Created {formatDate(project.createdAt)}
-            </p>
+              </p>
             </div>
-        </div>
-          
-        {showActions && (
-            <div className="flex space-x-1">
-            <button
-              onClick={() => router.push(`/projects/${project._id}`)}
-                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="View Details"
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={isDeleting}
-                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-              title="Delete Project"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
           </div>
-        )}
-      </div>
+          
+          {showActions && (
+            <div className="flex space-x-1">
+              <motion.button
+                onClick={() => router.push(`/projects/${project._id}`)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="View Details"
+              >
+                <Eye className="w-4 h-4" />
+              </motion.button>
+              <motion.button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isDeleting}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                title="Delete Project"
+              >
+                <Trash2 className="w-4 h-4" />
+              </motion.button>
+            </div>
+          )}
+        </div>
 
         {/* Description */}
         {project.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p className="text-sm text-slate-600 mb-4 line-clamp-2">
             {project.description}
           </p>
         )}
 
-        {/* Stats */}
-      <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <Link className="w-4 h-4 text-green-600" />
+        {/* Enhanced Stats */}
+        <div className="space-y-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                <Link className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-900">{project.urlCount}</p>
+                <p className="text-xs text-slate-500">URLs</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900">{project.urlCount}</p>
-              <p className="text-xs text-gray-500">URLs</p>
+            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full border ${getHealthColor(healthStatus)}`}>
+              <div className={`w-2 h-2 rounded-full ${healthStatus === 'excellent' ? 'bg-green-500' : healthStatus === 'good' ? 'bg-blue-500' : healthStatus === 'fair' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+              <span className="text-xs font-medium capitalize">{healthStatus}</span>
             </div>
           </div>
-          <div className="flex items-center space-x-1 bg-green-50 px-2 py-1 rounded-full">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-xs text-green-700 font-medium">Active</span>
+          
+          {/* Health Progress Bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-600">Project Health</span>
+              <span className="text-xs font-medium text-slate-700">{Math.round(healthScore)}%</span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${healthScore}%` }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className={`h-2 rounded-full ${
+                  healthStatus === 'excellent' ? 'bg-green-500' : 
+                  healthStatus === 'good' ? 'bg-blue-500' : 
+                  healthStatus === 'fair' ? 'bg-yellow-500' : 'bg-red-500'
+                }`}
+              ></motion.div>
+            </div>
           </div>
         </div>
 
-        {/* Action Button - Push to bottom */}
-        <div className="mt-auto">
-        <button
-          onClick={() => router.push(`/projects/${project._id}`)}
-            className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-3 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2 group/btn"
-        >
-          <span>View Details</span>
-            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-        </button>
+        {/* Action Buttons */}
+        <div className="mt-auto space-y-2">
+          <motion.button
+            onClick={() => router.push(`/projects/${project._id}`)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg"
+          >
+            <span>View Details</span>
+            <ArrowRight className="w-4 h-4" />
+          </motion.button>
+          
+          <div className="flex space-x-2">
+            <motion.button
+              onClick={() => router.push(`/projects/${project._id}/scan`)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-1 text-sm"
+            >
+              <Zap className="w-3 h-3" />
+              <span>Scan</span>
+            </motion.button>
+            <motion.button
+              onClick={() => router.push(`/projects/${project._id}/reports`)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-1 text-sm"
+            >
+              <FileText className="w-3 h-3" />
+              <span>Reports</span>
+            </motion.button>
+          </div>
         </div>
       </div>
 

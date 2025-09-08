@@ -1,19 +1,9 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
-import { authenticateToken } from '../middlewares/auth';
 
 const router = express.Router();
 
-// Auth is optional; if present, we still accept it, but don't block requests
-router.use((req, _res, next) => {
-  // If Authorization header exists, try to authenticate, otherwise skip
-  if (req.headers.authorization) {
-    // Best-effort auth
-    // @ts-ignore
-    return authenticateToken(req, _res, () => next());
-  }
-  return next();
-});
+// No authentication required for assistant - it's a free service using OpenRouter API key
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -33,8 +23,11 @@ router.post('/chat', async (req: Request, res: Response) => {
     // Ensure API key exists
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
+      console.error('OpenRouter API key not configured');
       return res.status(500).json({ error: 'OpenRouter API key not configured' });
     }
+    
+    console.log('OpenRouter API key exists:', !!apiKey);
 
     // Keep a short context to avoid exceeding token limits
     const MAX_MESSAGES = 8;
@@ -81,10 +74,16 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     let response;
     try {
+      console.log('Trying preferred model:', preferredModel);
       response = await callOpenRouter(preferredModel);
-    } catch (e) {
-      // Try fallback model once
-      response = await callOpenRouter(fallbackModel);
+    } catch (e: any) {
+      console.log('Preferred model failed, trying fallback:', e?.message || 'Unknown error');
+      try {
+        response = await callOpenRouter(fallbackModel);
+      } catch (fallbackError: any) {
+        console.error('Both models failed:', fallbackError?.message || 'Unknown error');
+        throw fallbackError;
+      }
     }
 
     const choice = response.data?.choices?.[0];
@@ -92,7 +91,25 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     return res.json({ message: content });
   } catch (err: any) {
+    console.error('Assistant route error:', err);
+    
+    // Handle specific OpenRouter API errors
+    if (err?.response?.status === 401) {
+      return res.status(500).json({ 
+        error: 'OpenRouter API authentication failed', 
+        detail: 'Please check the OPENROUTER_API_KEY environment variable' 
+      });
+    }
+    
+    if (err?.response?.status === 429) {
+      return res.status(500).json({ 
+        error: 'OpenRouter API rate limit exceeded', 
+        detail: 'Please try again in a moment' 
+      });
+    }
+    
     const detail = err?.response?.data || err?.message || 'Unknown error';
+    console.error('Error detail:', detail);
     return res.status(500).json({ error: 'Failed to get assistant response', detail });
   }
 });

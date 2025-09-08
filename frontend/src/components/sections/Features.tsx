@@ -96,13 +96,13 @@ const Features = () => {
             className="inline-flex items-center bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            WebShield AI - Complete Security Suite
+            Scan More - Complete Security Suite
           </motion.div>
           
           <h2 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
-            Everything you need to
-            <span className="block bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              stay secure & compliant
+            Why Choose
+            <span className="block bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              Scan More?
             </span>
           </h2>
           
@@ -111,45 +111,54 @@ const Features = () => {
           </p>
         </motion.div>
 
-        {/* Main Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-          {features.map((feature, index) => (
+        {/* Main Features Grid - Simplified to 3 key benefits */}
+        <div className="grid md:grid-cols-3 gap-8 mb-20">
+          {features.slice(0, 3).map((feature, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
+              transition={{ duration: 0.8, delay: index * 0.2 }}
               viewport={{ once: true }}
               className="group relative"
             >
-              <div className="bg-white rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border border-slate-200/50 relative overflow-hidden">
-                {/* Gradient background on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300" 
-                     style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}
-                     data-gradient={feature.gradient} />
+              <div className="bg-white rounded-3xl p-10 h-full transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 border border-slate-200/50 relative overflow-hidden">
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500" 
+                     style={{ background: `linear-gradient(135deg, ${feature.gradient.includes('blue') ? '#3b82f6' : feature.gradient.includes('green') ? '#10b981' : '#8b5cf6'}, ${feature.gradient.includes('cyan') ? '#06b6d4' : feature.gradient.includes('emerald') ? '#059669' : '#a855f7'})` }} />
                 
                 <div className="relative z-10">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-gradient-to-r ${feature.gradient} shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
-                    <feature.icon className="w-8 h-8 text-white" />
+                  <div className={`inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-8 bg-gradient-to-r ${feature.gradient} shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500`}>
+                    <feature.icon className="w-10 h-10 text-white" />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                  <h3 className="text-3xl font-bold text-slate-900 mb-6 group-hover:text-blue-600 transition-colors duration-300">
                     {feature.title}
                   </h3>
                   
-                  <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors duration-300 mb-6">
+                  <p className="text-lg text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors duration-300 mb-8">
                     {feature.description}
                   </p>
 
-                  {/* Feature list */}
-                  <ul className="space-y-2">
-                    {feature.features.map((item, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-slate-600">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+                  {/* Feature list with better styling */}
+                  <ul className="space-y-3">
+                    {feature.features.slice(0, 3).map((item, idx) => (
+                      <li key={idx} className="flex items-center text-base text-slate-600 group-hover:text-slate-700 transition-colors duration-300">
+                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0 group-hover:bg-blue-200 transition-colors duration-300">
+                          <CheckCircle className="w-4 h-4 text-blue-600" />
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
+                  
+                  {/* Hover effect indicator */}
+                  <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center text-blue-600 font-semibold">
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Learn More
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -286,7 +295,7 @@ const Features = () => {
               Ready to secure your website?
             </h3>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of businesses that trust WebShield AI to keep their websites compliant, secure, and protected.
+              Join thousands of businesses that trust Scan More to keep their websites compliant, secure, and protected.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-300 shadow-lg flex items-center justify-center">

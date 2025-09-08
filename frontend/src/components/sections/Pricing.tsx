@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Star, Zap, Crown, Heart, Gift, Shield, Globe, Users } from 'lucide-react';
 import Button from '../ui/Button';
+import { useRouter } from 'next/navigation';
 
 const supportTiers = [
   {
@@ -54,6 +55,16 @@ const supportTiers = [
 ];
 
 const Pricing = () => {
+  const router = useRouter();
+
+  const handleButtonClick = (tier: any) => {
+    if (tier.name === 'Supporter') {
+      router.push('/donation');
+    } else {
+      router.push('/sign-up');
+    }
+  };
+
   return (
     <section className="py-24 bg-gradient-to-b from-white to-slate-50 relative overflow-hidden">
       {/* Background decoration */}
@@ -171,6 +182,7 @@ const Pricing = () => {
                   <Button
                     variant={tier.buttonVariant}
                     size="lg"
+                    onClick={() => handleButtonClick(tier)}
                     className={`w-full font-semibold ${
                       tier.popular 
                         ? 'bg-slate-800 text-white hover:bg-slate-700 border-0 shadow-lg' 
@@ -248,7 +260,7 @@ const Pricing = () => {
             <div className="grid md:grid-cols-2 gap-8 text-left">
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Is it really free forever?</h4>
-                <p className="text-slate-600">Yes, absolutely! All WebShield AI features including the Security Engine are completely free and will always remain free. No hidden costs, no limitations.</p>
+                <p className="text-slate-600">Yes, absolutely! All Scan More features including the Security Engine are completely free and will always remain free. No hidden costs, no limitations.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Why should I become a supporter?</h4>
@@ -260,7 +272,7 @@ const Pricing = () => {
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900 mb-2">Can I use this for commercial projects?</h4>
-                <p className="text-slate-600">Yes! You can use WebShield AI's compliance scanner and security tools for any project, personal or commercial, without any restrictions.</p>
+                <p className="text-slate-600">Yes! You can use Scan More's compliance scanner and security tools for any project, personal or commercial, without any restrictions.</p>
               </div>
             </div>
           </div>

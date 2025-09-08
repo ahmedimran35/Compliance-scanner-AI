@@ -1,0 +1,225 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 15.4.6",
+    "React 18.3.1",
+    "Node.js",
+    "Express.js 4.18.2",
+    "MongoDB 8.0.3",
+    "Mongoose",
+    "Tailwind CSS 3.4.17",
+    "Framer Motion 12.23.12",
+    "Clerk.js 6.31.3",
+    "JWT",
+    "Axios 1.11.0",
+    "Node-cron 4.2.1",
+    "Lucide React 0.540.0"
+  ],
+  "features": [
+    {
+      "name": "AI-Powered Compliance Scanner",
+      "description": "Automated compliance scanning for WCAG 2.1, GDPR, HIPAA standards with 99.9% accuracy",
+      "files": [
+        "frontend/src/app/dashboard/page.tsx",
+        "frontend/src/components/QuickScanModal.tsx",
+        "backend/routes/scans.ts",
+        "backend/controllers/scanController.ts"
+      ]
+    },
+    {
+      "name": "Security Engine Suite",
+      "description": "12+ security tools including Port Scanner, SSL Checker, DNS Analyzer, Password Strength, Hash Identifier - now accessible without authentication",
+      "files": [
+        "frontend/src/app/security-engine/page.tsx",
+        "frontend/src/components/sections/Features.tsx"
+      ]
+    },
+    {
+      "name": "User Authentication",
+      "description": "Secure authentication system using Clerk.js with JWT tokens and role-based access - fixed deprecated props",
+      "files": [
+        "frontend/src/app/sign-in/[[...sign-in]]/page.tsx",
+        "frontend/src/app/sign-up/[[...sign-up]]/page.tsx",
+        "backend/middlewares/auth.ts",
+        "backend/routes/users.ts"
+      ]
+    },
+    {
+      "name": "Project Management",
+      "description": "Create, manage, and monitor multiple websites with team collaboration features",
+      "files": [
+        "frontend/src/app/projects/page.tsx",
+        "frontend/src/app/projects/[id]/page.tsx",
+        "frontend/src/components/ProjectCard.tsx",
+        "backend/routes/projects.ts"
+      ]
+    },
+    {
+      "name": "Real-time Monitoring",
+      "description": "Continuous website monitoring with automated alerts and status tracking",
+      "files": [
+        "frontend/src/app/monitoring/page.tsx",
+        "frontend/src/components/MonitoringCard.tsx",
+        "backend/routes/monitoring.ts",
+        "backend/services/monitoringService.ts"
+      ]
+    },
+    {
+      "name": "Scheduled Scans",
+      "description": "Automated compliance scanning with customizable schedules and recurring scans",
+      "files": [
+        "frontend/src/app/scheduled-scans/page.tsx",
+        "backend/routes/scheduledScans.ts",
+        "backend/services/scheduler.ts"
+      ]
+    },
+    {
+      "name": "Comprehensive Reports",
+      "description": "Detailed analysis reports with compliance scores, security metrics, and recommendations",
+      "files": [
+        "frontend/src/app/reports/page.tsx",
+        "frontend/src/components/StatsCard.tsx",
+        "frontend/src/components/RecentScans.tsx"
+      ]
+    },
+    {
+      "name": "Dashboard Analytics",
+      "description": "Real-time dashboard with project overview, scan statistics, and performance metrics",
+      "files": [
+        "frontend/src/app/dashboard/page.tsx",
+        "frontend/src/components/QuickActionCard.tsx",
+        "frontend/src/components/StatsCard.tsx"
+      ]
+    },
+    {
+      "name": "User Settings & Profile",
+      "description": "User profile management, preferences, and account settings",
+      "files": [
+        "frontend/src/app/settings/page.tsx",
+        "backend/routes/user.ts"
+      ]
+    },
+    {
+      "name": "AI Assistant Widget",
+      "description": "Intelligent assistant for user guidance and support - now accessible from homepage",
+      "files": [
+        "frontend/src/components/AssistantWidget.tsx",
+        "backend/routes/assistant.ts"
+      ]
+    },
+    {
+      "name": "Donation System",
+      "description": "Ko-fi integration for community support and donations - fixed button functionality",
+      "files": [
+        "frontend/src/app/donation/page.tsx",
+        "backend/routes/payments.ts"
+      ]
+    },
+    {
+      "name": "News & Updates",
+      "description": "Real-time news feed with security and compliance updates",
+      "files": [
+        "frontend/src/app/news/page.tsx"
+      ]
+    },
+    {
+      "name": "Feedback System",
+      "description": "User feedback collection and management system - fixed navigation links",
+      "files": [
+        "frontend/src/app/feedback/page.tsx"
+      ]
+    },
+    {
+      "name": "Landing Page",
+      "description": "Marketing landing page with feature showcase and pricing - fixed button responsiveness",
+      "files": [
+        "frontend/src/app/page.tsx",
+        "frontend/src/components/sections/Hero.tsx",
+        "frontend/src/components/sections/Features.tsx",
+        "frontend/src/components/sections/Pricing.tsx",
+        "frontend/src/components/sections/Header.tsx",
+        "frontend/src/components/sections/Footer.tsx"
+      ]
+    },
+    {
+      "name": "Navigation & Layout",
+      "description": "Responsive navigation, sidebar, and layout components - fixed scroll behavior",
+      "files": [
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/components/Sidebar.tsx",
+        "frontend/src/components/sections/Header.tsx"
+      ]
+    },
+    {
+      "name": "Loading & Error Handling",
+      "description": "Comprehensive loading states, error boundaries, and user feedback",
+      "files": [
+        "frontend/src/app/loading.tsx",
+        "frontend/src/app/error.tsx",
+        "frontend/src/app/global-error.tsx",
+        "frontend/src/app/not-found.tsx",
+        "frontend/src/components/LoadingScreen.tsx",
+        "frontend/src/components/LoadingSpinner.tsx",
+        "frontend/src/components/LoadingExamples.tsx"
+      ]
+    },
+    {
+      "name": "Modal System",
+      "description": "Reusable modal components for various user interactions",
+      "files": [
+        "frontend/src/components/modals/ScanOptionsModal.tsx",
+        "frontend/src/components/modals/CreateProjectModal.tsx",
+        "frontend/src/components/modals/EditProjectModal.tsx",
+        "frontend/src/components/modals/DeleteProjectModal.tsx",
+        "frontend/src/components/modals/AddWebsiteModal.tsx",
+        "frontend/src/components/modals/EditWebsiteModal.tsx",
+        "frontend/src/components/modals/DeleteWebsiteModal.tsx",
+        "frontend/src/components/modals/ScheduleScanModal.tsx"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Reusable UI components and design system",
+      "files": [
+        "frontend/src/components/ui/Button.tsx",
+        "frontend/src/app/globals.css",
+        "frontend/tailwind.config.ts"
+      ]
+    },
+    {
+      "name": "API Configuration",
+      "description": "API configuration and utility functions",
+      "files": [
+        "frontend/src/config/api.ts",
+        "frontend/src/utils/logger.ts",
+        "frontend/src/hooks/useApi.ts"
+      ]
+    },
+    {
+      "name": "Database Models",
+      "description": "MongoDB models and database schemas",
+      "files": [
+        "backend/models/User.ts",
+        "backend/models/Project.ts",
+        "backend/models/Scan.ts",
+        "backend/models/Monitoring.ts"
+      ]
+    },
+    {
+      "name": "Notification System",
+      "description": "Real-time notifications and alert system",
+      "files": [
+        "backend/routes/notifications.ts"
+      ]
+    },
+    {
+      "name": "Security Middleware",
+      "description": "Security headers, authentication, and request validation - added test endpoints",
+      "files": [
+        "backend/middlewares/auth.ts",
+        "backend/index.ts",
+        "frontend/next.config.mjs"
+      ]
+    }
+  ]
+}

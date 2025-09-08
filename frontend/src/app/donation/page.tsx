@@ -10,17 +10,16 @@ import {
   Lock,
   Sparkles,
   Shield,
-  Zap
+  Zap,
+  ExternalLink
 } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { getApiUrl } from '@/config/api';
 
-// Stripe configuration
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51RJhja4TM9GOGK5BJ9nk1D5lbVvAQeacXaHsgonke6DwT8p8OpjVIFpUUxPO5Eueqbkclwn9tiPcZL1DBiISR8xa00lBNdatuD';
+// Ko-fi configuration
+const KO_FI_URL = 'https://ko-fi.com/scanmore';
 
 export default function DonationPage() {
   const { user, isLoaded } = useUser();
-  const { getToken } = useAuth();
   const router = useRouter();
   const [amount, setAmount] = useState<number>(10);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,65 +41,13 @@ export default function DonationPage() {
     }
 
     setIsProcessing(true);
-    setError('');
     
     try {
-      const token = await getToken();
-      
-      // Create Stripe Checkout session
-      const response = await fetch(`${getApiUrl()}/api/payments/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to cents for Stripe
-          currency: 'usd',
-          successUrl: `${window.location.origin}/donation/success`,
-          cancelUrl: `${window.location.origin}/donation`,
-        }),
-      });
-
-      // Check if response is ok and has content
-      if (!response.ok) {
-        // Try to parse error response
-        let errorMessage = 'Failed to create payment session';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (parseError) {
-          // If JSON parsing fails, use status text
-          errorMessage = response.statusText || errorMessage;
-        }
-        throw new Error(errorMessage);
-      }
-
-      // Check if response has content
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Invalid response from server');
-      }
-
-      const data = await response.json();
-      
-      if (!data.sessionUrl) {
-        throw new Error('No session URL received from server');
-      }
-      
-      // Redirect to Stripe Checkout
-      window.location.href = data.sessionUrl;
-      
+      // Redirect to Ko-fi with suggested amount
+      const koFiUrl = `${KO_FI_URL}?amount=${Math.round(amount)}`;
+      window.open(koFiUrl, '_blank');
     } catch (error) {
-      
-      // Handle specific error cases
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        setError('Unable to connect to payment server. Please try again later.');
-      } else if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Payment failed. Please try again.');
-      }
+      setError('Failed to redirect to Ko-fi. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -141,7 +88,7 @@ export default function DonationPage() {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            Support WebShield AI
+            Support Scan More
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Your support means the world to us! Every contribution helps us continue building the most advanced compliance scanning platform and keeping it free for everyone. Thank you for being part of our journey! 💙
@@ -171,9 +118,13 @@ export default function DonationPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">Secure Payment</h2>
-              <p className="text-slate-600">You'll be redirected to Stripe for secure payment</p>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-slate-900">Secure Payment via Ko-fi</h2>
+              <p className="text-slate-600">You'll be redirected to Ko-fi for secure payment</p>
+            </div>
+            <div className="flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-xs font-medium text-green-700">Ko-fi Ready</span>
             </div>
           </div>
 
@@ -187,7 +138,7 @@ export default function DonationPage() {
             {/* Amount */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Donation Amount (USD)
+                Suggested Donation Amount (USD)
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">$</span>
@@ -202,14 +153,26 @@ export default function DonationPage() {
                   required
                 />
               </div>
+              <p className="text-sm text-slate-500 mt-2">
+                This amount will be suggested on Ko-fi. You can adjust it on their platform.
+              </p>
             </div>
 
             {/* Security Notice */}
             <div className="flex items-center space-x-3 p-4 bg-green-50 border border-green-200 rounded-xl">
               <Lock className="w-5 h-5 text-green-600" />
               <p className="text-sm text-green-700">
-                Your payment will be processed securely by Stripe. You'll be redirected to their secure payment page.
+                Your payment will be processed securely by Ko-fi. You'll be redirected to their secure payment page.
               </p>
+            </div>
+
+            {/* Ko-fi Info */}
+            <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <ExternalLink className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-sm text-blue-700 font-medium">Ko-fi Payment Platform</p>
+                <p className="text-xs text-blue-600">Trusted by creators worldwide for secure donations</p>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -221,10 +184,13 @@ export default function DonationPage() {
               {isProcessing ? (
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Redirecting to Stripe...</span>
+                  <span>Redirecting to Ko-fi...</span>
                 </div>
               ) : (
-                `Donate $${amount.toFixed(2)}`
+                <div className="flex items-center justify-center space-x-2">
+                  <span>Donate via Ko-fi</span>
+                  <ExternalLink className="w-4 h-4" />
+                </div>
               )}
             </button>
           </form>

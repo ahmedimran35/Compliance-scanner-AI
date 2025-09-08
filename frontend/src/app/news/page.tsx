@@ -32,7 +32,6 @@ export default function NewsPage() {
   React.useEffect(() => {
     if (isLoaded && !user) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('User not authenticated, redirecting to sign-in');
       }
       router.replace('/sign-in');
     }
@@ -54,7 +53,6 @@ export default function NewsPage() {
         if (data.success && data.news && data.news.length > 0) {
           setNews(data.news);
           if (process.env.NODE_ENV === 'development') {
-            console.log('✅ Real-time news fetched successfully:', data.count, 'articles');
           }
         } else {
           // Use fallback data if API fails
@@ -104,7 +102,6 @@ export default function NewsPage() {
           ];
           setNews(fallbackNews);
           if (process.env.NODE_ENV === 'development') {
-            console.log('⚠️ Using fallback news data');
           }
         }
         
@@ -275,7 +272,7 @@ export default function NewsPage() {
               <Shield className="w-8 h-8 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">WebShield AI</h1>
+                          <h1 className="text-2xl font-bold text-slate-900 mb-4">Scan More</h1>
           <div className="flex items-center justify-center space-x-2 text-slate-600">
             <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <span>Loading...</span>
@@ -311,92 +308,325 @@ export default function NewsPage() {
   return (
     <Layout>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-6 py-8">
-        {/* Header */}
+        {/* Enhanced Modern Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-12"
         >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Globe className="w-6 h-6 text-white" />
-                </div>
+          <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 rounded-3xl p-8 shadow-2xl border border-blue-800/30">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
+              <div className="flex items-center space-x-6">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
+                >
+                  <Globe className="w-8 h-8 text-white" />
+                </motion.div>
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900">Latest News</h1>
-                  <p className="text-slate-600">Real-time compliance and security insights from Google News</p>
+                  <h1 className="text-4xl font-bold text-white mb-2">Latest News</h1>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      <span className="text-blue-200 text-sm font-medium">Live News Feed</span>
+                    </div>
+                    <span className="text-blue-300 text-sm">•</span>
+                    <span className="text-blue-200 text-sm">Real-time updates</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Refresh Button */}
-            <button
-              onClick={() => {
-                setLoading(true);
-                setError(null);
-                // Trigger news fetch again
-                const fetchNews = async () => {
-                  try {
-                    const response = await fetch('/api/news');
-                    const data = await response.json();
-                    if (data.success && data.news && data.news.length > 0) {
-                      setNews(data.news);
-                      if (process.env.NODE_ENV === 'development') {
-                        console.log('✅ News refreshed successfully:', data.count, 'articles');
+              
+              <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <motion.p 
+                      key={news.length}
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      {news.length}
+                    </motion.p>
+                    <p className="text-blue-200 text-sm font-medium">Articles</p>
+                  </div>
+                  <div className="text-center">
+                    <motion.p 
+                      key={news.filter(item => {
+                        const itemDate = new Date(item.pubDate);
+                        const now = new Date();
+                        const diffInHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+                        return diffInHours < 6;
+                      }).length}
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      {news.filter(item => {
+                        const itemDate = new Date(item.pubDate);
+                        const now = new Date();
+                        const diffInHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+                        return diffInHours < 6;
+                      }).length}
+                    </motion.p>
+                    <p className="text-blue-200 text-sm font-medium">Fresh</p>
+                  </div>
+                  <div className="text-center">
+                    <motion.p 
+                      key="0"
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-3xl font-bold text-white"
+                    >
+                      0
+                    </motion.p>
+                    <p className="text-blue-200 text-sm font-medium">Trending</p>
+                  </div>
+                </div>
+                
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setLoading(true);
+                    setError(null);
+                    // Trigger news fetch again
+                    const fetchNews = async () => {
+                      try {
+                        const response = await fetch('/api/news');
+                        const data = await response.json();
+                        if (data.success && data.news && data.news.length > 0) {
+                          setNews(data.news);
+                          if (process.env.NODE_ENV === 'development') {
+                          }
+                        } else {
+                          setError('No fresh news found. Please try again later.');
+                        }
+                      } catch (error) {
+                        if (process.env.NODE_ENV === 'development') {
+                          console.error('❌ Error refreshing news:', error);
+                        }
+                        setError('Failed to refresh news. Please try again.');
+                      } finally {
+                        setLoading(false);
                       }
-                    } else {
-                      setError('No fresh news found. Please try again later.');
-                    }
-                  } catch (error) {
-                    if (process.env.NODE_ENV === 'development') {
-                      console.error('❌ Error refreshing news:', error);
-                    }
-                    setError('Failed to refresh news. Please try again.');
-                  } finally {
-                    setLoading(false);
-                  }
-                };
-                fetchNews();
-              }}
-              disabled={loading}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span>{loading ? 'Refreshing...' : 'Refresh News'}</span>
-            </button>
+                    };
+                    fetchNews();
+                  }}
+                  disabled={loading}
+                  className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <TrendingUp className="w-5 h-5" />
+                  <span>{loading ? 'Refreshing...' : 'Refresh News'}</span>
+                </motion.button>
+              </div>
+            </div>
           </div>
+        </motion.div>
 
-          {/* Search and Filter */}
-          <div className="flex flex-col gap-4">
-            {/* Search Bar */}
+        {/* Premium Stats Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+        >
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="group bg-gradient-to-br from-blue-50 to-blue-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-blue-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Globe className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-blue-700">Total Articles</p>
+                <motion.p 
+                  key={news.length}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-blue-900"
+                >
+                  {news.length}
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
+                <span className="text-blue-600 font-medium">Live feed</span>
+              </div>
+              <div className="w-16 h-2 bg-blue-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 0.5, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="group bg-gradient-to-br from-green-50 to-green-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-green-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Clock className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-green-700">Fresh News</p>
+                <motion.p 
+                  key={news.filter(item => {
+                    const itemDate = new Date(item.pubDate);
+                    const now = new Date();
+                    const diffInHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+                    return diffInHours < 6;
+                  }).length}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-green-900"
+                >
+                  {news.filter(item => {
+                    const itemDate = new Date(item.pubDate);
+                    const now = new Date();
+                    const diffInHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+                    return diffInHours < 6;
+                  }).length}
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <Shield className="w-4 h-4 text-green-500 mr-1" />
+                <span className="text-green-600 font-medium">Last 6 hours</span>
+              </div>
+              <div className="w-16 h-2 bg-green-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "75%" }}
+                  transition={{ delay: 0.7, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="group bg-gradient-to-br from-yellow-50 to-yellow-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-yellow-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <TrendingUp className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-yellow-700">Trending</p>
+                <motion.p 
+                  key="0"
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-yellow-900"
+                >
+                  0
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <Search className="w-4 h-4 text-yellow-500 mr-1" />
+                <span className="text-yellow-600 font-medium">Hot topics</span>
+              </div>
+              <div className="w-16 h-2 bg-yellow-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "0%" }}
+                  transition={{ delay: 0.9, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="group bg-gradient-to-br from-purple-50 to-purple-100/50 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-purple-200/50 hover:shadow-2xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Filter className="w-7 h-7 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-purple-700">Categories</p>
+                <motion.p 
+                  key="7"
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-3xl font-bold text-purple-900"
+                >
+                  7
+                </motion.p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-sm">
+                <ExternalLink className="w-4 h-4 text-purple-500 mr-1" />
+                <span className="text-purple-600 font-medium">Available</span>
+              </div>
+              <div className="w-16 h-2 bg-purple-200 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 1.1, duration: 1 }}
+                  className="h-full bg-gradient-to-r from-purple-500 to-pink-600 rounded-full"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Enhanced Search and Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+          className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-slate-200/50 mb-8"
+        >
+          <div className="flex flex-col gap-6">
+            {/* Enhanced Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search news..."
+                placeholder="Search news articles, topics, or sources..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/80 backdrop-blur-sm"
+                className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md text-lg"
               />
             </div>
             
-            {/* Filters Row */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Enhanced Filters Row */}
+            <div className="flex flex-col lg:flex-row gap-4">
               {/* Category Filter */}
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-slate-500" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Filter className="w-5 h-5 text-white" />
+                </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/80 backdrop-blur-sm text-sm"
+                  className="px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md font-medium"
                 >
                   {categories.map(category => (
                     <option key={category.id} value={category.id}>
@@ -407,12 +637,14 @@ export default function NewsPage() {
               </div>
               
               {/* Sort Filter */}
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-slate-500" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/80 backdrop-blur-sm text-sm"
+                  className="px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md font-medium"
                 >
                   {sortOptions.map(option => (
                     <option key={option.id} value={option.id}>
@@ -423,12 +655,14 @@ export default function NewsPage() {
               </div>
               
               {/* Time Filter */}
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-slate-500" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
                 <select
                   value={timeFilter}
                   onChange={(e) => setTimeFilter(e.target.value)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/80 backdrop-blur-sm text-sm"
+                  className="px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-white shadow-sm hover:shadow-md font-medium"
                 >
                   {timeFilters.map(filter => (
                     <option key={filter.id} value={filter.id}>
@@ -438,12 +672,17 @@ export default function NewsPage() {
                 </select>
               </div>
               
-              {/* Results Count */}
-              <div className="flex items-center space-x-2 text-sm text-slate-600 bg-slate-100 px-3 py-2 rounded-lg">
-                <span>
-                  {filteredNews.length} articles
-                  {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
-                </span>
+              {/* Enhanced Results Count */}
+              <div className="flex items-center space-x-3 text-slate-600 bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-3 rounded-xl shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">{filteredNews.length}</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-900">Articles Found</p>
+                  {totalPages > 1 && (
+                    <p className="text-sm text-slate-500">Page {currentPage} of {totalPages}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -456,48 +695,81 @@ export default function NewsPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           {loading ? (
-            <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-              <div className="w-12 h-12 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-              <p className="text-slate-600 text-lg">Loading latest news...</p>
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 p-16 text-center">
+              <div className="flex items-center justify-center mb-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Globe className="w-8 h-8 text-white" />
+                  </motion.div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Loading Latest News</h3>
+              <p className="text-slate-600 text-lg">Fetching the most recent compliance and security updates...</p>
             </div>
           ) : error ? (
-            <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-8 h-8 text-red-600" />
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-red-200/50 p-16 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                <Shield className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">Error Loading News</h3>
-              <p className="text-slate-600 mb-4">{error}</p>
-              <button
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Error Loading News</h3>
+              <p className="text-red-600 mb-6 text-lg">{error}</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.reload()}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Try Again
-              </button>
+              </motion.button>
             </div>
           ) : filteredNews.length === 0 ? (
-            <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-16 text-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-8 h-8 text-slate-400" />
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 p-16 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                <Search className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">No News Found</h3>
-              <p className="text-slate-600">Try adjusting your search or filter criteria.</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">No News Found</h3>
+              <p className="text-slate-600 text-lg mb-6">Try adjusting your search or filter criteria to find relevant news.</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSearchTerm('')}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  Clear Search
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedCategory('all')}
+                  className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  Show All Categories
+                </motion.button>
+              </div>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {currentArticles.map((item, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-xl transition-all duration-300"
+                    className="group bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                   >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
+                    <div className="p-8">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-slate-900 mb-2 line-clamp-2">
-                            {item.title}
+                          <div className="flex items-center space-x-3 mb-3">
+                            {/* News Category Badge */}
+                            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-bold rounded-full shadow-lg">
+                              {item.source}
+                            </span>
                             {/* Hot News Indicator */}
                             {(() => {
                               const itemDate = new Date(item.pubDate);
@@ -505,16 +777,19 @@ export default function NewsPage() {
                               const diffInHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
                               if (diffInHours < 6) {
                                 return (
-                                  <span className="inline-block ml-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-                                    HOT
+                                  <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
+                                    🔥 HOT
                                   </span>
                                 );
                               }
                               return null;
                             })()}
+                          </div>
+                          <h3 className="text-xl font-bold text-slate-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                            {item.title}
                           </h3>
                           {item.description && (
-                            <p className="text-slate-600 text-sm mb-3 line-clamp-3">
+                            <p className="text-slate-600 text-sm mb-4 line-clamp-3 leading-relaxed">
                               {item.description}
                             </p>
                           )}
@@ -523,22 +798,28 @@ export default function NewsPage() {
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4 text-sm text-slate-500">
-                          <div className="flex items-center space-x-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{formatDate(item.pubDate)}</span>
+                          <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 rounded-xl">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            <span className="font-medium">{formatDate(item.pubDate)}</span>
                           </div>
-                          <span className="font-medium text-slate-700">{item.source}</span>
+                          <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 rounded-xl">
+                            <Globe className="w-4 h-4 text-slate-400" />
+                            <span className="font-medium text-slate-700">{item.source}</span>
+                          </div>
                         </div>
                         
-                        <a
+                        <motion.a
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             // Validate the link before opening
                             if (!item.link || item.link === '#' || item.link.includes('javascript:')) {
                               e.preventDefault();
-                              alert('Invalid link. This article may not be available.');
+                              // Handle invalid link silently or show toast
+                              console.warn('Invalid news article link');
                               return;
                             }
                             
@@ -551,38 +832,40 @@ export default function NewsPage() {
                             // Open in new tab
                             window.open(url, '_blank', 'noopener,noreferrer');
                           }}
-                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+                          className="group/btn flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
                         >
                           <span>Read More</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                          <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </motion.a>
                       </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
               
-              {/* Pagination Controls */}
+              {/* Enhanced Pagination Controls */}
               {totalPages > 1 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="mt-8 flex items-center justify-center"
+                  className="mt-12 flex items-center justify-center"
                 >
-                  <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 p-4">
+                  <div className="flex items-center space-x-4 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-6">
                     {/* Previous Button */}
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
-                      className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center space-x-2 px-4 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Previous</span>
-                    </button>
+                    </motion.button>
                     
                     {/* Page Numbers */}
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-2">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         let pageNum;
                         if (totalPages <= 5) {
@@ -596,34 +879,44 @@ export default function NewsPage() {
                         }
                         
                         return (
-                          <button
+                          <motion.button
                             key={pageNum}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
                             onClick={() => setCurrentPage(pageNum)}
-                            className={`w-8 h-8 text-sm font-medium rounded-lg transition-colors ${
+                            className={`w-10 h-10 text-sm font-bold rounded-xl transition-all duration-300 shadow-sm hover:shadow-md ${
                               currentPage === pageNum
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
                                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                             }`}
                           >
                             {pageNum}
-                          </button>
+                          </motion.button>
                         );
                       })}
                     </div>
                     
                     {/* Next Button */}
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
-                      className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center space-x-2 px-4 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <span>Next</span>
                       <ArrowLeft className="w-4 h-4 rotate-180" />
-                    </button>
+                    </motion.button>
                     
-                    {/* Page Info */}
-                    <div className="ml-4 text-sm text-slate-500">
-                      Page {currentPage} of {totalPages}
+                    {/* Enhanced Page Info */}
+                    <div className="ml-6 flex items-center space-x-3 text-slate-600 bg-slate-50 px-4 py-3 rounded-xl">
+                      <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">{currentPage}</span>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900">Page {currentPage} of {totalPages}</p>
+                        <p className="text-xs text-slate-500">{filteredNews.length} articles total</p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

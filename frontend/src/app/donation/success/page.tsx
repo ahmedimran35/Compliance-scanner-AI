@@ -68,12 +68,16 @@ export default function DonationSuccessPage() {
             errorMessage = supporterResponse.statusText || errorMessage;
             errorDetails = `Status: ${supporterResponse.status}, StatusText: ${supporterResponse.statusText}`;
           }
+          
+          // Log error details for debugging
+          console.error('Supporter status update failed:', {
             status: supporterResponse.status,
             statusText: supporterResponse.statusText,
             errorMessage,
             errorDetails,
             sessionId
           });
+          
           throw new Error(errorMessage);
         }
 

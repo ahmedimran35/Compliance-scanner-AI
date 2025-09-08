@@ -9,9 +9,9 @@ interface AuthenticatedRequest extends express.Request {
 }
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_KEY || '', {
+const stripe = process.env.STRIPE_KEY ? new Stripe(process.env.STRIPE_KEY, {
   apiVersion: '2025-07-30.basil',
-});
+}) : null;
 
 // Create Stripe Checkout Session
 router.post('/create-checkout-session', authenticateToken, async (req: AuthenticatedRequest, res: express.Response) => {
@@ -26,6 +26,11 @@ router.post('/create-checkout-session', authenticateToken, async (req: Authentic
       return res.status(400).json({ error: 'Success and cancel URLs are required' });
     }
 
+    // Check if Stripe is configured
+    if (!stripe) {
+      return res.status(503).json({ error: 'Payment service is not configured. Please contact support.' });
+    }
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -34,9 +39,9 @@ router.post('/create-checkout-session', authenticateToken, async (req: Authentic
           price_data: {
             currency: currency,
             product_data: {
-              name: 'ComplianceScanner AI Donation',
-              description: 'Support ComplianceScanner AI - Become a Supporter',
-              images: ['https://compliance-scanner-ai.com/logo.png'], // Replace with your logo URL
+              name: 'WebShield AI Donation',
+              description: 'Support WebShield AI - Become a Supporter',
+              images: ['https://webshield-ai.com/logo.png'], // Replace with your logo URL
             },
             unit_amount: amount, // Amount in cents
           },
@@ -67,6 +72,11 @@ router.post('/verify-payment', authenticateToken, async (req: AuthenticatedReque
 
     if (!sessionId) {
       return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    // Check if Stripe is configured
+    if (!stripe) {
+      return res.status(503).json({ error: 'Payment service is not configured. Please contact support.' });
     }
 
     // Retrieve the session from Stripe
@@ -102,6 +112,11 @@ router.post('/verify-payment', authenticateToken, async (req: AuthenticatedReque
 
 // Webhook to handle Stripe events (optional, for additional security)
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req: express.Request, res: express.Response) => {
+  // Check if Stripe is configured
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payment service is not configured' });
+  }
+
   const sig = req.headers['stripe-signature'];
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 

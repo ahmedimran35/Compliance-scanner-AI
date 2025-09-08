@@ -2,10 +2,11 @@
 
 import React from 'react';
 import { useUser, SignOutButton, useAuth } from '@clerk/nextjs';
-import { Shield, LogOut, Menu, X, ChevronDown, Bell, Settings, User, Crown, Calendar, Activity, BarChart3, FolderOpen, Zap, CreditCard, HelpCircle, CheckCircle, AlertTriangle, Info, Clock, Heart, PanelLeftClose, Newspaper, MessageSquare } from 'lucide-react';
+import { Shield, LogOut, Menu, X, ChevronDown, Bell, Settings, User, Crown, Calendar, Activity, BarChart3, FolderOpen, Zap, CreditCard, HelpCircle, CheckCircle, AlertTriangle, Info, Heart, PanelLeftClose, Newspaper, MessageSquare } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiUrl } from '@/config/api';
+import { useEffect } from 'react';
 
 interface Notification {
   _id: string;
@@ -50,6 +51,69 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(false);
   const [touchStart, setTouchStart] = React.useState<number | null>(null);
   const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+  const [servicesOnlineCount, setServicesOnlineCount] = React.useState(0);
+  const [servicesStatus, setServicesStatus] = React.useState<'checking' | 'online' | 'offline' | 'partial'>('checking');
+  const [lastHealthCheck, setLastHealthCheck] = React.useState<Date | null>(null);
+  const totalServices = 11;
+
+  // Enhanced services health check with better error handling
+  useEffect(() => {
+    let mounted = true;
+    const apiUrl = getApiUrl();
+    
+    const check = async () => {
+      try {
+        setServicesStatus('checking');
+        const res = await fetch(`${apiUrl}/api/admin/health`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // Add timeout to prevent hanging
+          signal: AbortSignal.timeout(5000)
+        }).catch(() => null);
+        
+        if (!mounted) return;
+        
+        if (res && res.ok) {
+          setServicesOnlineCount(totalServices);
+          setServicesStatus('online');
+        } else {
+          // Try alternative health check endpoint
+          try {
+            const altRes = await fetch(`${apiUrl}/api/health`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              signal: AbortSignal.timeout(3000)
+            }).catch(() => null);
+            
+            if (altRes && altRes.ok) {
+              setServicesOnlineCount(Math.floor(totalServices * 0.8)); // Partial service
+              setServicesStatus('partial');
+            } else {
+              setServicesOnlineCount(0);
+              setServicesStatus('offline');
+            }
+          } catch {
+            setServicesOnlineCount(0);
+            setServicesStatus('offline');
+          }
+        }
+        setLastHealthCheck(new Date());
+      } catch (error) {
+        if (!mounted) return;
+        setServicesOnlineCount(0);
+        setServicesStatus('offline');
+        setLastHealthCheck(new Date());
+      }
+    };
+    
+    check();
+    const id = setInterval(check, 30000); // Check every 30 seconds instead of 60
+    return () => { mounted = false; clearInterval(id); };
+  }, []);
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
@@ -481,10 +545,10 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
         data-testid="sidebar"
         data-open={isOpen}
         data-hidden={isHidden}
-        initial={{ x: -280 }}
-        animate={{ x: isHidden ? -280 : 0 }}
+        initial={{ x: -256 }}
+        animate={{ x: isHidden ? -256 : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed left-0 top-0 h-screen w-70 bg-white/95 backdrop-blur-xl border-r border-gray-200/50 shadow-xl z-50 flex flex-col ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-white/95 backdrop-blur-xl border-r border-gray-200/50 shadow-xl z-50 flex flex-col ${
           isHidden ? 'lg:-translate-x-full' : 'lg:translate-x-0'
         }`}
         style={{ height: '100vh' }}
@@ -512,7 +576,7 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex items-center space-x-2">
-                  <span>WebShield AI</span>
+                  <span>Scan More</span>
                   <span className="text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-full font-medium shadow-sm">
                     Alpha
                   </span>
@@ -545,64 +609,156 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
           </motion.button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-6 space-y-1 min-h-0">
-          {navigation.map((item) => {
+        {/* Enhanced Navigation */}
+        <nav className="flex-1 px-3 py-6 space-y-2 min-h-0">
+          {navigation.map((item, index) => {
             const Icon = item.icon;
             return (
-              <motion.button
+              <motion.div
                 key={item.name}
-                onClick={() => handleNavigation(item.href)}
-                whileHover={{ scale: 1.02, x: 2 }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-300 text-sm ${
-                  item.current
-                    ? 'text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-md shadow-blue-500/25'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/50 hover:shadow-sm'
-                }`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Icon className={`w-4 h-4 transition-all duration-300 ${item.current ? 'animate-pulse' : 'group-hover:scale-110'}`} />
-                <span className="flex-1 text-left">{item.name}</span>
-              </motion.button>
+                <motion.button
+                  onClick={() => handleNavigation(item.href)}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`group w-full flex items-center space-x-2 px-3 py-2.5 rounded-xl font-medium transition-all duration-300 text-sm relative overflow-hidden ${
+                    item.current
+                      ? 'text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/30 border border-blue-500/20'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/50 hover:shadow-md hover:border-slate-200/50 border border-transparent'
+                  }`}
+                >
+                  {/* Animated background for active state */}
+                  {item.current && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"
+                    />
+                  )}
+                  
+                  {/* Icon with enhanced styling */}
+                  <div className={`relative p-1 rounded-lg transition-all duration-300 ${
+                    item.current 
+                      ? 'bg-white/20 shadow-sm' 
+                      : 'bg-slate-100 group-hover:bg-blue-100 group-hover:shadow-sm'
+                  }`}>
+                    <Icon className={`w-4 h-4 transition-all duration-300 ${
+                      item.current 
+                        ? 'text-white' 
+                        : 'text-slate-600 group-hover:text-blue-600 group-hover:scale-110'
+                    }`} />
+                  </div>
+                  
+                  {/* Text content */}
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">{item.name}</div>
+                    <div className={`text-xs transition-colors duration-300 ${
+                      item.current 
+                        ? 'text-white/80' 
+                        : 'text-slate-500 group-hover:text-slate-600'
+                    }`}>
+                      {item.description}
+                    </div>
+                  </div>
+                  
+                  {/* Active indicator */}
+                  {item.current && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -90 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      className="w-2 h-2 bg-white rounded-full shadow-sm"
+                    />
+                  )}
+                </motion.button>
+              </motion.div>
             );
           })}
         </nav>
 
         {/* Bottom Section - Fixed at bottom */}
-        <div className="p-3 border-t border-gray-200/30 space-y-2 mt-auto">
-          {/* Chat with Astra */}
+        <div className="p-2 border-t border-gray-200/30 space-y-2 mt-auto">
+
+          {/* Enhanced Chat with Astra */}
           <motion.button
             onClick={() => {
               if (typeof window !== 'undefined') {
-                window.dispatchEvent(new Event('astra:open'));
+                window.dispatchEvent(new Event('scanbot:open'));
               }
             }}
-            whileHover={{ scale: 1.02, x: 2 }}
+            whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg font-semibold text-sm text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-md hover:shadow-lg transition-all"
+            className="group w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
           >
-            <Zap className="w-4 h-4" />
-            <span>Chat with Astra</span>
+            {/* Animated background */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
+            
+            {/* Icon with animation */}
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              className="relative p-1.5 bg-white/20 rounded-lg"
+            >
+              <Zap className="w-4 h-4" />
+            </motion.div>
+            
+            {/* Text */}
+            <span className="relative">Chat with ScanBot</span>
+            
+            {/* Sparkle effect */}
+            <motion.div
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+              className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full"
+            />
           </motion.button>
 
-          {/* Notifications */}
+          {/* Enhanced Notifications */}
           <div className="relative">
             <motion.button
               onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, x: 2 }}
               whileTap={{ scale: 0.98 }}
-              className="relative w-full p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/50 rounded-lg transition-all duration-300 hover:shadow-sm flex items-center space-x-3"
+              className="group relative w-full p-2.5 text-slate-600 hover:text-slate-900 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/50 rounded-xl transition-all duration-300 hover:shadow-md flex items-center space-x-2 border border-transparent hover:border-slate-200/50"
             >
-              <Bell className="w-4 h-4" />
-              <span className="flex-1 text-left text-sm">Notifications</span>
+              {/* Icon with background */}
+              <div className="relative p-1.5 bg-slate-100 group-hover:bg-blue-100 rounded-lg transition-all duration-300">
+                <Bell className="w-4 h-4 transition-all duration-300 group-hover:scale-110" />
+              </div>
+              
+              {/* Text content */}
+              <div className="flex-1 text-left">
+                <div className="text-sm font-medium">Notifications</div>
+                <div className="text-xs text-slate-500 group-hover:text-slate-600">
+                  {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+                </div>
+              </div>
+              
+              {/* Enhanced notification badge */}
               {unreadCount > 0 && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse shadow-md"
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  className="relative"
                 >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </motion.span>
+                  <motion.span 
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </motion.span>
+                  {/* Pulse ring */}
+                  <motion.div
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute inset-0 bg-red-500 rounded-full"
+                  />
+                </motion.div>
               )}
             </motion.button>
 
@@ -739,44 +895,66 @@ export default function Sidebar({ isOpen, onToggle, onToggleVisibility, isHidden
             </AnimatePresence>
           </div>
 
-          {/* User Menu */}
+          {/* Enhanced User Menu */}
           <div className="relative">
             <motion.button
               onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center space-x-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-lg px-3 py-2 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 transition-all duration-300 shadow-sm border border-blue-200/30 hover:shadow-md hover:border-blue-300"
+              className="group w-full flex items-center space-x-2 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl px-3 py-2.5 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 transition-all duration-300 shadow-md border border-blue-200/30 hover:shadow-lg hover:border-blue-300/50"
             >
+              {/* Enhanced Avatar */}
               <div className="relative">
-                <div className="w-7 h-7 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm ring-1 ring-white">
-                  <span className="text-white text-xs font-bold">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="w-7 h-7 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white"
+                >
+                  <span className="text-white text-sm font-bold">
                     {user.firstName?.charAt(0) || user.emailAddresses[0]?.emailAddress.charAt(0).toUpperCase()}
                   </span>
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border border-white flex items-center justify-center shadow-sm">
-                  <div className="w-0.5 h-0.5 bg-white rounded-full animate-pulse"></div>
-                </div>
+                </motion.div>
+                
+                {/* Enhanced online indicator */}
+                <motion.div 
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-sm"
+                >
+                  <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                </motion.div>
               </div>
               
-              <div className="flex-1 text-left">
-                <p className="text-xs font-medium text-gray-900 truncate">
+              {/* Enhanced Text Content */}
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-semibold text-slate-900 truncate">
                   {user.firstName || user.emailAddresses[0]?.emailAddress.split('@')[0]}
                 </p>
-                <div className="flex items-center space-x-1">
-                  <div className="flex items-center space-x-1 bg-gradient-to-r from-purple-100 to-blue-100 px-1 py-0.5 rounded-full border border-purple-200">
-                    <Crown className="w-2.5 h-2.5 text-purple-600" />
+                <div className="flex items-center space-x-2 mt-1">
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center space-x-1 bg-gradient-to-r from-purple-100 to-blue-100 px-2 py-1 rounded-full border border-purple-200"
+                  >
+                    <Crown className="w-3 h-3 text-purple-600" />
                     <span className="text-xs text-purple-700 font-medium">
                       {userProfile?.isSupporter ? 'Supporter' : 'Free'}
                     </span>
+                  </motion.div>
+                  
+                  {/* Usage indicator */}
+                  <div className="flex items-center space-x-1 bg-gradient-to-r from-green-100 to-emerald-100 px-2 py-1 rounded-full border border-green-200">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-700 font-medium">Active</span>
                   </div>
                 </div>
               </div>
               
+              {/* Enhanced Chevron */}
               <motion.div
                 animate={{ rotate: isUserDropdownOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="p-1 rounded-lg bg-white/50 group-hover:bg-white/70 transition-colors"
               >
-                <ChevronDown className="w-3 h-3 text-gray-500" />
+                <ChevronDown className="w-4 h-4 text-slate-600" />
               </motion.div>
             </motion.button>
 

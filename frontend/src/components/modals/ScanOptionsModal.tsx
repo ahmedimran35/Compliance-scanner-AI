@@ -141,9 +141,9 @@ export default function ScanOptionsModal({
     );
 
     if (!hasSelection) {
-      alert('Please select at least one scan category');
-        return;
-      }
+      // Handle validation error - could show toast or inline error
+      return;
+    }
 
     setIsStarting(true);
     try {

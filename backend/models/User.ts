@@ -109,4 +109,27 @@ const UserSchema = new Schema<IUser>({
   timestamps: true,
 });
 
+// Pre-save middleware to validate email
+UserSchema.pre('save', function(next) {
+  const user = this as IUser;
+  
+  // Check if email is required and valid
+  if (!user.email || user.email.trim() === '') {
+    return next(new Error('Email is required'));
+  }
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(user.email)) {
+    return next(new Error('Invalid email format'));
+  }
+  
+  // Check for placeholder emails
+  if (user.email.includes('@placeholder.com')) {
+    return next(new Error('Placeholder emails are not allowed'));
+  }
+  
+  next();
+});
+
 export default mongoose.model<IUser>('User', UserSchema); 

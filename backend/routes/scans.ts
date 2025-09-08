@@ -169,10 +169,26 @@ router.get('/recent', authenticateToken, async (req: AuthenticatedRequest, res: 
 // Get monthly scan count for dashboard
 router.get('/monthly-count', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Check if user is properly authenticated
+    if (!req.user || !req.user.clerkId) {
+      return res.status(401).json({ error: 'User not properly authenticated' });
+    }
+
+    // Check database connection
+    if (!Scan.db || Scan.db.readyState !== 1) {
+      console.warn('Database not connected, returning zero count');
+      return res.json({ count: 0 });
+    }
+
     // Get all projects for the user
     const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
     const projects = await Project.find({ ownerId: { $in: ownerIds } });
     const projectIds = projects.map(project => project._id);
+
+    // If no projects, return zero count
+    if (projectIds.length === 0) {
+      return res.json({ count: 0 });
+    }
 
     // Calculate start of current month
     const startOfMonth = new Date();
@@ -187,6 +203,7 @@ router.get('/monthly-count', authenticateToken, async (req: AuthenticatedRequest
 
     res.json({ count: monthlyScanCount });
   } catch (error) {
+    console.error('Error fetching monthly scan count:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -281,16 +298,37 @@ router.get('/url/:urlId', authenticateToken, async (req: AuthenticatedRequest, r
 // Get all scans for a user
 router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const user = req.user!;
+    // Check if user is properly authenticated
+    if (!req.user || !req.user.clerkId) {
+      return res.status(401).json({ error: 'User not properly authenticated' });
+    }
+
+    const user = req.user;
     const ownerIds = [user.clerkId, user.email].filter(Boolean);
+
+    // Check database connection
+    if (!Scan.db || Scan.db.readyState !== 1) {
+      console.warn('Database not connected, returning empty scans array');
+      return res.json([]);
+    }
 
     // Find all URLs belonging to the user's projects
     const userProjects = await Project.find({ ownerId: { $in: ownerIds } });
     const projectIds = userProjects.map(project => project._id);
     
+    // If no projects, return empty array
+    if (projectIds.length === 0) {
+      return res.json([]);
+    }
+    
     // Find all URLs in these projects
     const userUrls = await URL.find({ projectId: { $in: projectIds } });
     const urlIds = userUrls.map(url => url._id);
+    
+    // If no URLs, return empty array
+    if (urlIds.length === 0) {
+      return res.json([]);
+    }
     
     // Honor limit query param
     const limit = Math.min(parseInt(String((req.query as any).limit)) || 100, 100);
@@ -304,6 +342,7 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
     
     res.json(scans);
   } catch (error) {
+    console.error('Error fetching scans:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

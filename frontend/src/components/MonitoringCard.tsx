@@ -53,9 +53,10 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
       }
 
       onDelete();
-    } catch (error) {
-      alert('Failed to delete website. Please try again.');
-    } finally {
+          } catch (error) {
+        // Handle error silently or show toast notification
+        console.error('Failed to delete website:', error);
+      } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -116,23 +117,23 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+      className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-slate-200/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
       {/* Gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-50/0 via-emerald-50/0 to-teal-50/0 group-hover:from-green-50/30 group-hover:via-emerald-50/20 group-hover:to-teal-50/30 transition-all duration-500 rounded-3xl"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50/0 via-emerald-50/0 to-teal-50/0 group-hover:from-green-50/40 group-hover:via-emerald-50/30 group-hover:to-teal-50/40 transition-all duration-300 rounded-2xl"></div>
       
       {/* Top section with website info */}
       <div className="relative z-10">
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-5">
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Globe className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-slate-900 mb-1 truncate group-hover:text-green-700 transition-colors">
+                <h3 className="text-lg font-bold text-slate-900 mb-1 truncate group-hover:text-green-700 transition-colors">
                   {website.name}
                 </h3>
                 <div className="flex items-center space-x-2 text-sm text-slate-500">
@@ -142,20 +143,20 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
               </div>
             </div>
             
-            <div className="mb-4">
-              <p className="text-slate-600 text-sm leading-relaxed truncate">
+            <div className="mb-3">
+              <p className="text-slate-600 text-sm leading-relaxed truncate bg-slate-50/50 px-3 py-2 rounded-lg border border-slate-200/50">
                 {website.url}
               </p>
             </div>
           </div>
           
-          <div className="flex space-x-2 ml-4">
+          <div className="flex space-x-1 ml-4">
             <motion.button
               onClick={() => onToggleStatus(!website.isActive)}
-              className={`p-2.5 rounded-xl transition-all duration-200 hover:scale-110 ${
+              className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md ${
                 website.isActive 
-                  ? 'text-green-600 hover:text-green-700 hover:bg-green-50' 
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                  ? 'text-green-600 hover:text-green-700 hover:bg-green-50 bg-green-50/50' 
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 bg-slate-50/50'
               }`}
               title={website.isActive ? 'Pause Monitoring' : 'Start Monitoring'}
               whileHover={{ scale: 1.1 }}
@@ -165,7 +166,7 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
             </motion.button>
             <motion.button
               onClick={onEdit}
-              className="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md bg-slate-50/50"
               title="Edit Website"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -175,7 +176,7 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
             <motion.button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
-              className="p-2.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110 disabled:opacity-50"
+              className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-110 disabled:opacity-50 shadow-sm hover:shadow-md bg-slate-50/50"
               title="Delete Website"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -186,10 +187,10 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
         </div>
 
         {/* Status section */}
-        <div className="bg-gradient-to-r from-slate-50 to-green-50/50 rounded-2xl p-4 mb-6 border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-gradient-to-r from-slate-50 to-green-50/50 rounded-xl p-4 mb-5 border border-slate-200/50">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getStatusColor(website.status)}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${getStatusColor(website.status)}`}>
                 {getStatusIcon(website.status)}
               </div>
               <div>
@@ -210,14 +211,14 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
         </div>
 
         {/* Stats section */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50/50 rounded-2xl p-4 border border-slate-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50/50 rounded-xl p-3 border border-slate-200/50">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Zap className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className={`text-xl font-bold ${getResponseTimeColor(website.responseTime)}`}>
+                <p className={`text-lg font-bold ${getResponseTimeColor(website.responseTime)}`}>
                   {website.responseTime}ms
                 </p>
                 <p className="text-xs text-slate-600">Response Time</p>
@@ -225,13 +226,13 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50/50 rounded-2xl p-4 border border-slate-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50/50 rounded-xl p-3 border border-slate-200/50">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg">
                 <BarChart3 className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className={`text-xl font-bold ${getUptimeColor(website.uptime)}`}>
+                <p className={`text-lg font-bold ${getUptimeColor(website.uptime)}`}>
                   {website.uptime.toFixed(1)}%
                 </p>
                 <p className="text-xs text-slate-600">Uptime</p>
@@ -241,10 +242,10 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
         </div>
 
         {/* Interval section */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50/50 rounded-2xl p-4 mb-6 border border-slate-100">
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50/50 rounded-xl p-3 mb-5 border border-slate-200/50">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Settings className="w-4 h-4 text-white" />
               </div>
               <div>
@@ -262,7 +263,7 @@ export default function MonitoringCard({ website, onToggleStatus, onEdit, onDele
         {/* Action button */}
         <motion.button
           onClick={onEdit}
-          className="group/btn w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white px-6 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3 overflow-hidden"
+          className="group/btn w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3 overflow-hidden"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

@@ -72,10 +72,10 @@ describe('Sidebar Component', () => {
     expect(screen.getByText('Notifications')).toBeInTheDocument()
   })
 
-  it('renders chat with Astra button', () => {
+  it('renders chat with ScanBot button', () => {
     render(<Sidebar {...defaultProps} />)
 
-    expect(screen.getByText('Chat with Astra')).toBeInTheDocument()
+    expect(screen.getByText('Chat with ScanBot')).toBeInTheDocument()
   })
 
   it('applies correct classes when sidebar is open', () => {

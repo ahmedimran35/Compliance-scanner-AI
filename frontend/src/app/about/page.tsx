@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+
 import { Shield, Heart, Users, Globe, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Header from '../../components/sections/Header';
@@ -71,7 +71,7 @@ const AboutPage = () => {
             </span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            We're on a mission to democratize cybersecurity and make the internet a safer place for everyone. 
+            We&apos;re on a mission to democratize cybersecurity and make the internet a safer place for everyone. 
             What started as a simple idea has grown into a comprehensive security platform that serves thousands of users worldwide.
           </p>
         </div>
@@ -89,9 +89,9 @@ const AboutPage = () => {
               Why We Do What We Do
             </h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-              In today's digital world, cybersecurity shouldn't be a luxury reserved for large corporations. 
-              Every website, every application, and every user deserves protection. That's why we've made 
-              WebShield AI completely free and accessible to everyone.
+                            In today&apos;s digital world, cybersecurity shouldn&apos;t be a luxury reserved for large corporations.
+              Every website, every application, and every user deserves protection. That&apos;s why we&apos;ve made 
+              Scan More completely free and accessible to everyone.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ const AboutPage = () => {
               Meet Our Team
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We're a diverse group of security professionals, developers, and researchers 
+              We&apos;re a diverse group of security professionals, developers, and researchers 
               united by a common goal: making cybersecurity accessible to everyone.
             </p>
           </div>
@@ -156,7 +156,7 @@ const AboutPage = () => {
               Our Impact
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Since our launch, we've helped secure thousands of websites and applications, 
+              Since our launch, we&apos;ve helped secure thousands of websites and applications, 
               making the internet a safer place for everyone.
             </p>
           </div>
@@ -185,12 +185,12 @@ const AboutPage = () => {
             Join Us in Making the Web Safer
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Whether you're a developer, business owner, or security enthusiast, 
+                          Whether you&apos;re a developer, business owner, or security enthusiast, 
             you can help us make the internet a safer place for everyone.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg">
-              <span>Start Using WebShield AI</span>
+                              <span>Start Using Scan More</span>
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600">

@@ -10,7 +10,6 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ArrowLeft,
   BarChart3,
   Eye,
   TrendingUp,

@@ -1,0 +1,16 @@
+{
+  "status": "init",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "webshield-ai",
+    "projectPath": "/home/imran/Documents/saas/complience-saas",
+    "testIds": [],
+    "additionalInstruction": "Test the current state of the WebShield AI application after all the comprehensive fixes to verify if the test cases have been resolved.",
+    "envs": {
+      "API_KEY": "sk-user-SM97Fv9QsBiBjOBZJN2DuTPtRzXinwt3mcjDetOjkk9shpPDmFO0w5FWTHFakQjYHIBKM4-C6RoIlHdtzEOx5Tleb8kIc_wPIclMN44XGh1ge9zGLdkvxxw-aUdArXT2hn0"
+    }
+  },
+  "proxy": "http://edea1ed8-d3ea-4b69-b26e-55faf374c9cb:JxclIONjhVNs7xCrm1nUCoD0UrhKIYNC@tun.testsprite.com:8080"
+}

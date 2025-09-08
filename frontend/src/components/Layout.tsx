@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Menu, PanelLeftClose } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import dynamic from 'next/dynamic';
 
@@ -49,14 +49,17 @@ export default function Layout({ children }: LayoutProps) {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-xl">
               <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
-                WebShield AI
-              </span>
-              <span className="text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-full font-medium shadow-sm">
-                Alpha
-              </span>
-            </div>
+                      <div 
+            className="flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+            onClick={() => window.location.href = '/'}
+          >
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              Scan More
+            </span>
+            <span className="text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white px-1.5 py-0.5 rounded-full font-medium shadow-sm">
+              Alpha
+            </span>
+          </div>
           </div>
           
           <div className="w-8"></div> {/* Spacer for centering */}
@@ -75,6 +78,23 @@ export default function Layout({ children }: LayoutProps) {
       <main className={`transition-all duration-300 ${sidebarHidden ? 'lg:ml-0' : 'lg:ml-70'} ${sidebarOpen ? 'ml-70' : 'ml-0'} pt-16 lg:pt-0 h-screen overflow-y-auto`}>
         {children}
       </main>
+
+      {/* Floating Sidebar Toggle Button - Only show when sidebar is hidden */}
+      <AnimatePresence>
+        {sidebarHidden && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            onClick={toggleSidebarVisibility}
+            className="fixed left-4 top-1/2 transform -translate-y-1/2 z-50 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-full p-3 shadow-xl hover:shadow-2xl transition-all duration-300"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Menu className="w-5 h-5 text-gray-700" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Global Assistant Widget */}
       <AssistantWidget />

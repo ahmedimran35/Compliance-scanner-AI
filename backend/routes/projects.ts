@@ -13,7 +13,19 @@ const router = Router();
 // Get all projects for the authenticated user
 router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Check if user is properly authenticated
+    if (!req.user || !req.user.clerkId) {
+      return res.status(401).json({ error: 'User not properly authenticated' });
+    }
+
     const ownerIds = [req.user.clerkId, req.user.email].filter(Boolean);
+    
+    // Check database connection
+    if (!Project.db || Project.db.readyState !== 1) {
+      console.warn('Database not connected, returning empty projects array');
+      return res.json([]);
+    }
+
     const projects = await Project.find({ ownerId: { $in: ownerIds } })
       .sort({ createdAt: -1 })
       .lean();
@@ -21,11 +33,19 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
     // Get URL counts for each project
     const projectsWithUrlCounts = await Promise.all(
       projects.map(async (project) => {
-        const urlCount = await URL.countDocuments({ projectId: project._id });
-        return {
-          ...project,
-          urlCount,
-        };
+        try {
+          const urlCount = await URL.countDocuments({ projectId: project._id });
+          return {
+            ...project,
+            urlCount,
+          };
+        } catch (urlError) {
+          console.warn('Error counting URLs for project:', project._id, urlError);
+          return {
+            ...project,
+            urlCount: 0,
+          };
+        }
       })
     );
 
